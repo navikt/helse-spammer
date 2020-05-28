@@ -56,7 +56,10 @@ internal class TidITilstandMonitor(
         )
 
         if (tidITilstand.tidITilstand < tidITilstand.forventetTidITilstand) return
-        if (tidITilstand.tilstand == "AVVENTER_GODKJENNING" && tidITilstand.nyTilstand == "TIL_INFOTRYGD") return
+        if (tidITilstand.tilstand in listOf(
+                "AVVENTER_GODKJENNING", "AVVENTER_INNTEKTSMELDING_FERDIG_GAP", "AVVENTER_INNTEKTSMELDING_UFERDIG_FORLENGELSE",
+                "AVVENTER_INNTEKTSMELDING_UFERDIG_GAP"
+            ) && tidITilstand.nyTilstand == "TIL_INFOTRYGD") return
         if (slackThreadDao == null) return
 
         slackClient.postMessage(
