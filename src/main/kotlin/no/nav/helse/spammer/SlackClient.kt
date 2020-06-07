@@ -75,8 +75,8 @@ internal class SlackClient(private val accessToken: String, private val channel:
             val responseCode = connection.responseCode
 
             if (connection.responseCode !in 200..299) {
-                log.error("response from slack: code=$responseCode")
-                tjenestekall.error("response from slack: code=$responseCode body=${connection.errorStream.readText()}")
+                log.warn("response from slack: code=$responseCode")
+                tjenestekall.warn("response from slack: code=$responseCode body=${connection.errorStream.readText()}")
                 return null
             }
 
