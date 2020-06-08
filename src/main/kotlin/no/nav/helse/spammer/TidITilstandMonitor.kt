@@ -26,8 +26,7 @@ internal class TidITilstandMonitor(
         River(rapidsConnection).apply {
             validate {
                 it.demandValue("@event_name", "vedtaksperiode_tid_i_tilstand")
-                it.requireKey("aktørId", "fødselsnummer", "organisasjonsnummer",
-                    "vedtaksperiodeId", "tilstand", "nyTilstand",
+                it.requireKey("vedtaksperiodeId", "tilstand", "nyTilstand",
                     "timeout_første_påminnelse", "tid_i_tilstand", "endret_tilstand_på_grunn_av.event_name")
                 it.require("starttid", JsonNode::asLocalDateTime)
                 it.require("sluttid", JsonNode::asLocalDateTime)
@@ -56,10 +55,7 @@ internal class TidITilstandMonitor(
         )
 
         if (tidITilstand.tidITilstand < tidITilstand.forventetTidITilstand) return
-        if (tidITilstand.tilstand in listOf(
-                "AVVENTER_GODKJENNING", "AVVENTER_INNTEKTSMELDING_FERDIG_GAP", "AVVENTER_INNTEKTSMELDING_UFERDIG_FORLENGELSE",
-                "AVVENTER_INNTEKTSMELDING_UFERDIG_GAP"
-            ) && tidITilstand.nyTilstand == "TIL_INFOTRYGD") return
+        if (tidITilstand.tilstand !in listOf("AVVENTER_HISTORIKK", "AVVENTER_SIMULERING")) return
         if (slackThreadDao == null) return
 
         slackClient.postMessage(
@@ -92,9 +88,6 @@ internal class TidITilstandMonitor(
     }
 
     private class TidITilstand(private val packet: JsonMessage) {
-        val aktørId: String get() = packet["aktørId"].asText()
-        val fødselsnummer: String get() = packet["fødselsnummer"].asText()
-        val organisasjonsnummer: String get() = packet["organisasjonsnummer"].asText()
         val vedtaksperiodeId: String get() = packet["vedtaksperiodeId"].asText()
         val tilstand: String get() = packet["tilstand"].asText()
         val nyTilstand: String get() = packet["nyTilstand"].asText()
