@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
 import java.time.LocalDateTime
 
@@ -62,8 +63,8 @@ internal class SlackClient(private val accessToken: String, private val channel:
         try {
             connection = (URL(this).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
-                connectTimeout = 1000
-                readTimeout = 1000
+                connectTimeout = 5000
+                readTimeout = 5000
                 doOutput = true
                 setRequestProperty("Authorization", "Bearer $accessToken")
                 setRequestProperty("Content-Type", "application/json; charset=utf-8")
@@ -85,6 +86,8 @@ internal class SlackClient(private val accessToken: String, private val channel:
             tjenestekall.debug("response from slack: code=$responseCode body=$responseBody")
 
             return responseBody
+        } catch (err: SocketTimeoutException) {
+            log.warn("timeout waiting for reply", err)
         } catch (err: IOException) {
             log.error("feil ved posting til slack: {}", err.message, err)
         } finally {
