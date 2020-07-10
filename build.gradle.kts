@@ -1,12 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-val junitJupiterVersion = "5.4.0"
-val flywayVersion = "6.2.3"
-val hikariVersion = "3.4.2"
-val vaultJdbcVersion = "1.3.1"
-val kotliqueryVersion = "1.3.1"
-val wireMockVersion = "2.26.0"
-val mainClass = "no.nav.helse.spammer.AppKt"
+val junitJupiterVersion = "5.6.2"
 
 plugins {
     kotlin("jvm") version "1.3.72"
@@ -18,16 +10,19 @@ buildscript {
     }
 }
 
-val githubUser: String by project
-val githubPassword: String by project
+repositories {
+    mavenCentral()
+    maven("https://kotlin.bintray.com/ktor")
+    maven { url = uri("https://jitpack.io") }
+}
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:1.74ae9cb")
+    implementation("com.github.navikt:rapids-and-rivers:1.2954646")
 
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("com.zaxxer:HikariCP:$hikariVersion")
-    implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-    implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
+    implementation("org.flywaydb:flyway-core:6.5.0")
+    implementation("com.zaxxer:HikariCP:3.4.5")
+    implementation("no.nav:vault-jdbc:1.3.7")
+    implementation("com.github.seratch:kotliquery:1.3.1")
 
     implementation("com.bazaarvoice.jackson:rison:2.9.10.2")
 
@@ -38,57 +33,37 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 
-repositories {
-    mavenCentral()
-    maven("https://kotlin.bintray.com/ktor")
-    maven {
-        url = uri("https://maven.pkg.github.com/navikt/rapids-and-rivers")
-        credentials {
-            username = githubUser
-            password = githubPassword
+tasks {
+    compileKotlin {
+        kotlinOptions.jvmTarget = "12"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "12"
+    }
+
+    named<Jar>("jar") {
+        archiveBaseName.set("app")
+
+        manifest {
+            attributes["Main-Class"] = "no.nav.helse.spammer.AppKt"
+            attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
+                it.name
+            }
+        }
+
+        doLast {
+            configurations.runtimeClasspath.get().forEach {
+                val file = File("$buildDir/libs/${it.name}")
+                if (!file.exists())
+                    it.copyTo(file)
+            }
         }
     }
-}
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_12
-    targetCompatibility = JavaVersion.VERSION_12
-}
-
-tasks.named<Jar>("jar") {
-    archiveBaseName.set("app")
-
-    manifest {
-        attributes["Main-Class"] = mainClass
-        attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
-            it.name
+    withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
         }
     }
-
-    doLast {
-        configurations.runtimeClasspath.get().forEach {
-            val file = File("$buildDir/libs/${it.name}")
-            if (!file.exists())
-                it.copyTo(file)
-        }
-    }
-}
-
-tasks.named<KotlinCompile>("compileKotlin") {
-    kotlinOptions.jvmTarget = "12"
-}
-
-tasks.named<KotlinCompile>("compileTestKotlin") {
-    kotlinOptions.jvmTarget = "12"
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-    }
-}
-
-tasks.withType<Wrapper> {
-    gradleVersion = "6.1"
 }
