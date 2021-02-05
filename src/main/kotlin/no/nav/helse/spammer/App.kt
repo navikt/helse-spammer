@@ -21,7 +21,6 @@ fun main() {
     RapidApplication.create(env).apply {
         TidITilstandMonitor(this, slackClient, slackThreadDao)
         UtbetalingMonitor(this, slackClient, slackThreadDao)
-        BehovUtenLøsningMonitor(this, slackClient)
         AvstemmingMonitor(this, slackClient)
         AppStateMonitor(this, slackClient)
     }.apply {
