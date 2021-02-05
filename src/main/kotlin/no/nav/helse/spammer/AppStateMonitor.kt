@@ -35,7 +35,7 @@ internal class AppStateMonitor(
     }
 
     override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
-        if (lastReportTime > LocalDateTime.now().minusMinutes(2)) return // don't create alerts too eagerly
+        if (lastReportTime > LocalDateTime.now().minusMinutes(15)) return // don't create alerts too eagerly
         val appsDown = packet["states"]
             .filter { it["state"].asInt() == 0 }
             .filter { it["last_active_time"].asLocalDateTime() < LocalDateTime.now().minusMinutes(2) }
@@ -48,7 +48,7 @@ internal class AppStateMonitor(
             else appsDown.subList(0, appsDown.size - 1).joinToString { it.printApp() } + " og ${siste.printApp()}"
         }
         val logtext = String.format(
-            "%s er antatt nede fordi de ikke har svart på ping innen %s siden.",
+            "%s er antatt nede fordi de(n) ikke har svart på ping innen %s",
             appString,
             humanReadableTime(ChronoUnit.SECONDS.between(packet["threshold"].asLocalDateTime(), LocalDateTime.now()))
         )
@@ -59,6 +59,6 @@ internal class AppStateMonitor(
 
     private fun Pair<String, LocalDateTime>.printApp(): String {
         val tid = humanReadableTime(ChronoUnit.SECONDS.between(second, LocalDateTime.now()))
-        return "$first (sist aktiv: $tid siden)"
+        return "$first (sist aktiv: $tid)"
     }
 }
