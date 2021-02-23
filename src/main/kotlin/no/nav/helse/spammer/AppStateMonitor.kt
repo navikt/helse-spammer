@@ -29,12 +29,12 @@ internal class AppStateMonitor(
     }
 
     private var lastReportTime = LocalDateTime.MIN
-    override fun onError(problems: MessageProblems, context: RapidsConnection.MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error(problems.toString())
         sikkerLogg.error(problems.toExtendedReport())
     }
 
-    override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
+    override fun onPacket(packet: JsonMessage, context: MessageContext) {
         if (lastReportTime > LocalDateTime.now().minusMinutes(15)) return // don't create alerts too eagerly
         val appsDown = packet["states"]
             .filter { it["state"].asInt() == 0 }

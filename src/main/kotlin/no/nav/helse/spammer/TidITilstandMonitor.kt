@@ -35,7 +35,7 @@ internal class TidITilstandMonitor(
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
+    override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val tidITilstand = TidITilstand(packet)
 
 
@@ -83,7 +83,7 @@ internal class TidITilstandMonitor(
         )
     }
 
-    override fun onError(problems: MessageProblems, context: RapidsConnection.MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext) {
         sikkerLog.error("forstod ikke vedtaksperiode_tid_i_tilstand:\n${problems.toExtendedReport()}")
     }
 

@@ -30,11 +30,11 @@ internal class AvstemmingMonitor(
         }.register(this)
     }
 
-    override fun onError(problems: MessageProblems, context: RapidsConnection.MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext) {
         sikkerLog.error("forstod ikke avstemming:\n${problems.toExtendedReport()}")
     }
 
-    override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
+    override fun onPacket(packet: JsonMessage, context: MessageContext) {
         slackClient?.postMessage(String.format(
             "Avstemming <%s|%s> for %s ble kjørt for %s siden. %d oppdrag ble avstemt (%d fagområde(r))",
             Kibana.createUrl(String.format("\"%s\"", packet["@id"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),

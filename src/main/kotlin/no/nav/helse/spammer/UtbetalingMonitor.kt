@@ -27,11 +27,11 @@ internal class UtbetalingMonitor(
     }
 
     private class UtbetalingFeilet(private val slackClient: SlackClient?, private val slackThreadDao: SlackThreadDao?): River.PacketListener {
-        override fun onError(problems: MessageProblems, context: RapidsConnection.MessageContext) {
+        override fun onError(problems: MessageProblems, context: MessageContext) {
             sikkerLog.error("forstod ikke utbetaling_feilet:\n${problems.toExtendedReport()}")
         }
 
-        override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
+        override fun onPacket(packet: JsonMessage, context: MessageContext) {
             if (slackThreadDao == null) return
             slackClient?.postMessage(
                 slackThreadDao,
