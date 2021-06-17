@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:1.5e3ca6a")
+    implementation("com.github.navikt:rapids-and-rivers:20210617112841-8758b10")
 
     implementation("org.flywaydb:flyway-core:6.5.0")
     implementation("com.zaxxer:HikariCP:3.4.5")
