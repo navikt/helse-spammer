@@ -21,12 +21,10 @@ internal class AvstemmingMonitor(
     init {
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "avstemming") }
-            validate { it.requireKey("@id", "antall_oppdrag") }
-            validate { it.requireArray("fagområder") {
-                requireKey("nøkkel_fom", "nøkkel_tom", "antall_oppdrag", "antall_avstemmingsmeldinger")
-            } }
-            validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
+            validate { it.requireKey("@id", "antall_oppdrag", "fagområde") }
             validate { it.require("dagen", JsonNode::asLocalDate) }
+            validate { it.requireKey("detaljer.nøkkel_fom", "detaljer.nøkkel_tom", "detaljer.antall_oppdrag", "detaljer.antall_avstemmingsmeldinger") }
+            validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
         }.register(this)
     }
 
@@ -36,13 +34,13 @@ internal class AvstemmingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         slackClient?.postMessage(String.format(
-            "Avstemming <%s|%s> for %s ble kjørt for %s siden. %d oppdrag ble avstemt (%d fagområde(r))",
+            "Avstemming <%s|%s> for %s for fagområde %s ble kjørt for %s siden. %d oppdrag ble avstemt.",
             Kibana.createUrl(String.format("\"%s\"", packet["@id"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
             packet["@id"].asText(),
             packet["dagen"].asLocalDate().format(tidsstempel),
+            packet["fagområde"].asText(),
             humanReadableTime(ChronoUnit.SECONDS.between(packet["@opprettet"].asLocalDateTime(), LocalDateTime.now())),
-            packet["antall_oppdrag"].asInt(),
-            packet["fagområder"].size()
+            packet["antall_oppdrag"].asInt()
         ))
     }
 }
