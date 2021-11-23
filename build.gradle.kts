@@ -2,7 +2,7 @@ val junitJupiterVersion = "5.7.0"
 val testcontainersVersion = "1.16.2"
 
 plugins {
-    kotlin("jvm") version "1.4.30"
+    kotlin("jvm") version "1.6.0"
 }
 
 repositories {
@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:20210617121814-3e67e4d")
+    implementation("com.github.navikt:rapids-and-rivers:1.389b5c3")
 
     implementation("org.flywaydb:flyway-core:6.5.0")
     implementation("com.zaxxer:HikariCP:3.4.5")
@@ -21,7 +21,7 @@ dependencies {
 
     implementation("com.bazaarvoice.jackson:rison:2.9.10.2")
 
-    testImplementation("io.mockk:mockk:1.11.0")
+    testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
@@ -33,10 +33,10 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "14"
+        kotlinOptions.jvmTarget = "17"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "14"
+        kotlinOptions.jvmTarget = "17"
     }
 
     named<Jar>("jar") {
@@ -66,6 +66,6 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.8.3"
+        gradleVersion = "7.3"
     }
 }
