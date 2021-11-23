@@ -37,6 +37,7 @@ internal class BrukerutbetalingMonitor(
         val harIkkeNullNettobeløp = packet["personOppdrag"]["nettoBeløp"].asInt() != 0
         val harLinjerMedEndring =
             (packet["personOppdrag"]["linjer"] as ArrayNode).isNotEmpty() && packet["personOppdrag"]["linjer"].any { it["endringskode"].asText() != "UEND" }
+        if(packet["gjeldendeStatus"].asText() == "FORKASTET") return
 
         if (harIkkeNullNettobeløp || harLinjerMedEndring) {
             val utbetalingId = packet["utbetalingId"].asText()
