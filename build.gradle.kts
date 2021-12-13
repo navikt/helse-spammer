@@ -7,13 +7,12 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://kotlin.bintray.com/ktor")
     maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:1.389b5c3")
-
+    implementation("com.github.navikt:rapids-and-rivers:20210617121814-3e67e4d")
+    
     implementation("org.flywaydb:flyway-core:6.5.0")
     implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("no.nav:vault-jdbc:1.3.7")
