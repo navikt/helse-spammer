@@ -19,22 +19,28 @@ internal class BrukerutbetalingMonitorTest {
     }
 
     @Test
-    fun `varsler om brukerutbetaling i spill`() {
-        rapid.sendTestMessage(utbetalingMedLinjer())
+    fun `varsler om brukerutbetaling er utbetalt`() {
+        rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "OVERFØRT", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 1) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
-        assertEquals("Utbetaling:utbetalingId til bruker gikk fra GODKJENT til SENDT", utgåendeMelding.captured)
+        assertEquals("Utbetaling:utbetalingId til bruker gikk fra OVERFØRT til UTBETALT", utgåendeMelding.captured)
     }
 
     @Test
-    fun `varsler om annullering av brukerutbetaling i spill`() {
-        rapid.sendTestMessage(annullering())
+    fun `varsler ikke om brukerutbetaling går til annen status enn utbetalt`() {
+        rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "SENDT", gjeldendeStatus = "OVERFØRT"))
+        verify(exactly = 0) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
+    }
+
+    @Test
+    fun `varsler om annullering av brukerutbetaling er utbetalt`() {
+        rapid.sendTestMessage(annullering(forrigeStatus = "OVERFØRT", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 1) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
-        assertEquals("Utbetaling:utbetalingId til bruker gikk fra GODKJENT til SENDT", utgåendeMelding.captured)
+        assertEquals("Utbetaling:utbetalingId til bruker gikk fra OVERFØRT til UTBETALT", utgåendeMelding.captured)
     }
 
     @Test
     fun `varsler ikke om brukerutbetaling ved UEND i linjer`() {
-        rapid.sendTestMessage(utbetalingMedLinjer(endringskode = "UEND", nettobeløp = 0))
+        rapid.sendTestMessage(utbetalingMedLinjer(endringskode = "UEND", nettobeløp = 0, forrigeStatus = "OVERFØRT", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 0) { slackClientMock.postMessage(any()) }
     }
 
@@ -47,12 +53,14 @@ internal class BrukerutbetalingMonitorTest {
     @Language("Json")
     fun utbetalingMedLinjer(
         endringskode: String = "NY",
-        nettobeløp: Int = 1338
+        nettobeløp: Int = 1338,
+        forrigeStatus: String,
+        gjeldendeStatus: String
     ) = """{
   "utbetalingId": "utbetalingId",
   "type": "UTBETALING",
-  "forrigeStatus": "GODKJENT",
-  "gjeldendeStatus": "SENDT",
+  "forrigeStatus": "$forrigeStatus",
+  "gjeldendeStatus": "$gjeldendeStatus",
   "personOppdrag": {
     "fagsystemId": "FAGSYSTEMID",
     "nettoBeløp": $nettobeløp,
@@ -74,11 +82,14 @@ internal class BrukerutbetalingMonitorTest {
     """
 
     @Language("Json")
-    fun annullering() = """{
+    fun annullering(
+        forrigeStatus: String,
+        gjeldendeStatus: String
+    ) = """{
   "utbetalingId": "utbetalingId",
   "type": "ANNULLERING",
-  "forrigeStatus": "GODKJENT",
-  "gjeldendeStatus": "SENDT",
+  "forrigeStatus": "$forrigeStatus",
+  "gjeldendeStatus": "$gjeldendeStatus",
   "personOppdrag": {
     "fagsystemId": "FAGSYSTEMID",
     "nettoBeløp": 0,
@@ -105,8 +116,8 @@ internal class BrukerutbetalingMonitorTest {
     fun utbetalingUtenLinjer() = """{
   "utbetalingId": "utbetalingId",
   "type": "UTBETALING",
-  "forrigeStatus": "GODKJENT",
-  "gjeldendeStatus": "SENDT",
+  "forrigeStatus": "OVERFØRT",
+  "gjeldendeStatus": "UTBETALT",
   "personOppdrag": {
     "fagsystemId": "FAGSYSTEMID",
     "nettoBeløp": 0,

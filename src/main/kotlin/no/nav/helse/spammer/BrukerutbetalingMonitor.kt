@@ -23,7 +23,7 @@ internal class BrukerutbetalingMonitor(
                 it.requireKey("personOppdrag.nettoBeløp")
                 it.requireKey("personOppdrag.linjer")
                 it.requireKey("forrigeStatus")
-                it.requireKey("gjeldendeStatus")
+                it.requireValue("gjeldendeStatus", "UTBETALT")
                 it.require("@opprettet", JsonNode::asLocalDateTime)
             }
         }.register(this)
