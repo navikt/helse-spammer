@@ -1,5 +1,5 @@
-val junitJupiterVersion = "5.7.0"
-val testcontainersVersion = "1.16.2"
+val junitJupiterVersion = "5.8.2"
+val testcontainersVersion = "1.16.3"
 
 plugins {
     kotlin("jvm") version "1.6.0"
@@ -11,16 +11,16 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:20210617121814-3e67e4d")
+    implementation("com.github.navikt:rapids-and-rivers:2022.03.30-21.22.dbaa41649bd3")
     
-    implementation("org.flywaydb:flyway-core:6.5.0")
-    implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation("no.nav:vault-jdbc:1.3.7")
-    implementation("com.github.seratch:kotliquery:1.3.1")
+    implementation("org.flywaydb:flyway-core:8.5.5")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("no.nav:vault-jdbc:1.3.9")
+    implementation("com.github.seratch:kotliquery:1.7.0")
 
     implementation("com.bazaarvoice.jackson:rison:2.9.10.2")
 
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
