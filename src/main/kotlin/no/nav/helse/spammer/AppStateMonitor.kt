@@ -72,7 +72,7 @@ internal class AppStateMonitor(
             appsDown.forEach { (_, _, instances) ->
                 val text = instances.joinToString(separator = "\n") { (instans, sistAktivitet) ->
                     val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
-                    "- $instans (siste aktivitet: $tid - $sistAktivitet)\n"
+                    "- $instans (siste aktivitet: $tid - $sistAktivitet)"
                 }
                 slackClient?.postMessage(text, threadTs)
             }
@@ -82,9 +82,9 @@ internal class AppStateMonitor(
             val logtext = String.format(
                 "%d instanser(er) er antatt nede (eller har betydelig lag) da de(n) ikke svarer tilfredsstillende på ping.\n%s",
                 slowInstances.size,
-                slowInstances.joinToString { (instans, sistAktivitet) ->
+                slowInstances.joinToString(separator = "\n") { (instans, sistAktivitet) ->
                     val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
-                    "- $instans (siste aktivitet: $tid - $sistAktivitet)\n"
+                    "- $instans (siste aktivitet: $tid - $sistAktivitet)"
                 })
             slackClient?.postMessage(logtext)
         }
