@@ -84,7 +84,7 @@ internal class AppStateMonitor(
                 slowInstances.size,
                 slowInstances.joinToString { (instans, sistAktivitet) ->
                     val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
-                    "$instans (siste aktivitet: $tid - $sistAktivitet)"
+                    "- $instans (siste aktivitet: $tid - $sistAktivitet)\n"
                 })
             slackClient?.postMessage(logtext)
         }
