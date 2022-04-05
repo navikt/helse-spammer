@@ -86,7 +86,8 @@ internal class AppStateMonitor(
                     val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
                     "- $instans (siste aktivitet: $tid - $sistAktivitet)"
                 })
-            slackClient?.postMessage(logtext)
+            log.info(logtext)
+            //slackClient?.postMessage(logtext)
         }
         lastReportTime = now
     }
