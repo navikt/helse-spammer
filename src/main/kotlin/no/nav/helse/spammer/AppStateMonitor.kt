@@ -65,9 +65,9 @@ internal class AppStateMonitor(
             val logtext = String.format(
                 "%d app(er) er antatt nede da de(n) ikke svarer tilfredsstillende på ping. Trøblete instanser i :thread:\n%s",
                 appsDown.size,
-                appsDown.joinToString { (app, sistAktivitet, _) ->
+                appsDown.joinToString(separator = "\n") { (app, sistAktivitet, _) ->
                     val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
-                    "$app (siste aktivitet: $tid - $sistAktivitet)"
+                    "- $app (siste aktivitet: $tid - $sistAktivitet)"
                 })
             log.warn(logtext)
             val threadTs = slackClient?.postMessage(logtext)
