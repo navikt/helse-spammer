@@ -1,8 +1,18 @@
+
+val jvmTarget = "17"
+
 val junitJupiterVersion = "5.8.2"
-val testcontainersVersion = "1.16.3"
+val testcontainersVersion = "1.17.1"
+val rapidsAndRiversVersion = "2022.04.21-09.34.08966130226f"
+val flywayCoreVersion = "8.5.5"
+val hikariCPVersion = "5.0.1"
+val vaultJdbcVersion = "1.3.9"
+val kotliqueryVersion = "1.7.0"
+val risonVersion = "2.9.10.2"
+val mockkVersion = "1.12.3"
 
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.21"
 }
 
 repositories {
@@ -11,16 +21,16 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.navikt:rapids-and-rivers:2022.04.05-09.40.11a466d7ac70")
+    implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
     
-    implementation("org.flywaydb:flyway-core:8.5.5")
-    implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("no.nav:vault-jdbc:1.3.9")
-    implementation("com.github.seratch:kotliquery:1.7.0")
+    implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
+    implementation("com.zaxxer:HikariCP:$hikariCPVersion")
+    implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
+    implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
 
-    implementation("com.bazaarvoice.jackson:rison:2.9.10.2")
+    implementation("com.bazaarvoice.jackson:rison:$risonVersion")
 
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
@@ -32,10 +42,10 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = jvmTarget
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = jvmTarget
     }
 
     named<Jar>("jar") {
@@ -65,6 +75,6 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "7.3"
+        gradleVersion = "7.4.2"
     }
 }

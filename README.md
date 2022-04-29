@@ -4,6 +4,15 @@
 ## Beskrivelse
 Lager meldinger til Slack basert på interessante events.
 
+
+## Oppgradering av gradle wrapper
+Finn nyeste versjon av gradle her: https://gradle.org/releases/
+
+```./gradlew wrapper --gradle-version $gradleVersjon```
+
+Husk å oppdatere gradle versjonen i build.gradle.kts filen
+```val gradlewVersion = "$gradleVersjon"```
+
 ## Henvendelser
 Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på GitHub.
 
