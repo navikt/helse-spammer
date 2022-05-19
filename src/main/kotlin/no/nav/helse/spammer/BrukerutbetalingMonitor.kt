@@ -17,7 +17,7 @@ internal class BrukerutbetalingMonitor(
         River(rapidsConnection).apply {
             validate {
                 it.demandValue("@event_name", "utbetaling_endret")
-                it.requireAny("type", listOf("UTBETALING", "ANNULLERING", "ETTERUTBETALING", "REVURDERING"))
+                it.requireAny("type", listOf("UTBETALING", "ANNULLERING", "ETTERUTBETALING", "REVURDERING", "FERIEPENGER"))
                 it.requireKey("aktørId", "fødselsnummer", "organisasjonsnummer", "utbetalingId")
                 it.requireKey("personOppdrag")
                 it.requireKey("personOppdrag.nettoBeløp")
@@ -34,11 +34,11 @@ internal class BrukerutbetalingMonitor(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        if (packet["gjeldendeStatus"].asText() == "FORKASTET" || packet["type"].asText() == "FERIEPENGER") return
+
         val harIkkeNullNettobeløp = packet["personOppdrag"]["nettoBeløp"].asInt() != 0
         val harLinjerMedEndring =
             (packet["personOppdrag"]["linjer"] as ArrayNode).isNotEmpty() && packet["personOppdrag"]["linjer"].any { it["endringskode"].asText() != "UEND" }
-        if(packet["gjeldendeStatus"].asText() == "FORKASTET") return
-
         if (harIkkeNullNettobeløp || harLinjerMedEndring) {
             val utbetalingId = packet["utbetalingId"].asText()
             val gjeldendeStatus = packet["gjeldendeStatus"].asText()
