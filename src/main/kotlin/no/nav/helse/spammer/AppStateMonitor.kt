@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.rapids_rivers.*
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 internal class AppStateMonitor(
@@ -14,6 +15,7 @@ internal class AppStateMonitor(
     private companion object {
         private val log = LoggerFactory.getLogger(AppStateMonitor::class.java)
         private val sikkerLogg = LoggerFactory.getLogger("tjenestekall")
+        private val natt = LocalTime.MIDNIGHT..LocalTime.of(5, 0)
     }
 
     init {
@@ -40,7 +42,7 @@ internal class AppStateMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val now = LocalDateTime.now()
-        if (lastReportTime > now.minusMinutes(15)) return // don't create alerts too eagerly
+        if (now.toLocalTime() in natt || lastReportTime > now.minusMinutes(15)) return // don't create alerts too eagerly
         val appsDown = packet["states"]
             .filter { it["state"].asInt() == 0 }
             .filter { it["last_active_time"].asLocalDateTime() < now.minusMinutes(2) }
