@@ -15,14 +15,20 @@ fun main() {
             channel = env.getValue("SLACK_CHANNEL_ID")
         )
     }
+    val slackAlertsClient = env["SLACK_ACCESS_TOKEN"]?.let {
+        SlackClient(
+            accessToken = it,
+            channel = env.getValue("SLACK_CHANNEL_ID_ALERTS")
+        )
+    }
 
     val slackThreadDao = dataSourceBuilder?.let { SlackThreadDao(dataSourceBuilder.getDataSource()) }
 
     RapidApplication.create(env).apply {
-        UtbetalingMonitor(this, slackClient, slackThreadDao)
+        UtbetalingMonitor(this, slackAlertsClient, slackThreadDao)
         AvstemmingMonitor(this, slackClient)
-        AppStateMonitor(this, slackClient)
-        LoopMonitor(this, slackClient)
+        AppStateMonitor(this, slackAlertsClient)
+        LoopMonitor(this, slackAlertsClient)
         BrukerutbetalingMonitor(this, slackClient)
     }.apply {
         register(object : RapidsConnection.StatusListener {
