@@ -35,8 +35,6 @@ spec:
   webproxy: true
   secureLogs:
     enabled: true
-  vault:
-    enabled: true
   env:
   - name: KAFKA_CONSUMER_GROUP_ID
     value: tbd-spammer-v1
