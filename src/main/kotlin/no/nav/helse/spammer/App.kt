@@ -26,6 +26,7 @@ fun main() {
 
     RapidApplication.create(env).apply {
         UtbetalingMonitor(this, slackAlertsClient, slackThreadDao)
+        PåminnelseMonitor(this, slackAlertsClient, slackThreadDao)
         AvstemmingMonitor(this, slackClient)
         AppStateMonitor(this, slackAlertsClient)
         LoopMonitor(this, slackAlertsClient)
