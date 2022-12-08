@@ -64,13 +64,23 @@ internal class AppStateMonitor(
         if (appsDown.isEmpty() && slowInstances.isEmpty()) return
 
         if (appsDown.isNotEmpty()) {
-            val logtext = String.format(
-                "%d app(er) er antatt nede da de(n) ikke svarer tilfredsstillende på ping. Trøblete instanser i :thread:\n%s",
-                appsDown.size,
-                appsDown.joinToString(separator = "\n") { (app, sistAktivitet, _) ->
-                    val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
-                    "- $app (siste aktivitet: $tid - $sistAktivitet)"
-                })
+            val logtext = if (appsDown.size == 1) {
+                val (app, sistAktivitet, _) = appsDown.first()
+                val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
+                String.format(
+                    "%d er antatt nede (siste aktivitet: %s) fordi den ikke svarer tilfredsstillende på ping. Trøblete instanser i :thread:\n" +
+                            ":question: Hva betyr dette for meg? Det kan bety at appen ikke leser fra Kafka, og kan ha alvorlig feil. Det kan også bety at appen har blitt drept (enten av Noen :tm: eller av :k8s:)",
+                    app, tid)
+            } else {
+                String.format(
+                    "%d apper er antatt nede da de ikke svarer tilfredsstillende på ping. Trøblete instanser i :thread:\n%s\n" +
+                            ":question: Hva betyr dette for meg? Det kan bety at appen ikke leser fra Kafka, og kan ha alvorlig feil. Det kan også bety at appen har blitt drept (enten av Noen :tm: eller av :k8s:)",
+                    appsDown.size,
+                    appsDown.joinToString(separator = "\n") { (app, sistAktivitet, _) ->
+                        val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
+                        "- $app (siste aktivitet: $tid - $sistAktivitet)"
+                    })
+            }
             log.warn(logtext)
             val threadTs = slackClient?.postMessage(logtext)
             appsDown.forEach { (_, _, instances) ->
@@ -84,7 +94,8 @@ internal class AppStateMonitor(
 
         if (slowInstances.isNotEmpty()) {
             val logtext = String.format(
-                "%d instanser(er) er antatt nede (eller har betydelig lag) da de(n) ikke svarer tilfredsstillende på ping.\n%s",
+                "%d instanser(er) er antatt nede (eller har betydelig lag) da de(n) ikke svarer tilfredsstillende på ping.\n%s\n" +
+                        ":question: Hva betyr dette for meg? Det kan bety at en pod sliter med å lese en bestemt partisjon, eller at en pod har problemer/er død.",
                 slowInstances.size,
                 slowInstances.joinToString(separator = "\n") { (instans, sistAktivitet) ->
                     val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
