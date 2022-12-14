@@ -68,7 +68,7 @@ internal class AppStateMonitor(
                 val (app, sistAktivitet, _) = appsDown.first()
                 val tid = humanReadableTime(ChronoUnit.SECONDS.between(sistAktivitet, now))
                 String.format(
-                    "%d er antatt nede (siste aktivitet: %s) fordi den ikke svarer tilfredsstillende på ping. Trøblete instanser i :thread:\n" +
+                    "%s er antatt nede (siste aktivitet: %s) fordi den ikke svarer tilfredsstillende på ping. Trøblete instanser i :thread:\n" +
                             ":question: Hva betyr dette for meg? Det kan bety at appen ikke leser fra Kafka, og kan ha alvorlig feil. Det kan også bety at appen har blitt drept (enten av Noen :tm: eller av :k8s:)",
                     app, tid)
             } else {
