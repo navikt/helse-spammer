@@ -34,7 +34,7 @@ internal class AvstemmingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         slackClient?.postMessage(String.format(
-            "Avstemming <%s|%s> for %s for fagområde %s ble kjørt for %s siden. %d oppdrag ble avstemt.",
+            "Avstemming <%s|%s> for :calendar: %s for fagområde **%s** ble kjørt for %s siden. :chart_with_upwards_trend: %d oppdrag ble avstemt.",
             Kibana.createUrl(String.format("\"%s\"", packet["@id"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
             packet["@id"].asText(),
             packet["dagen"].asLocalDate().format(tidsstempel),
