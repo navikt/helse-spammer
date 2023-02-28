@@ -20,27 +20,27 @@ internal class BrukerutbetalingMonitorTest {
 
     @Test
     fun `varsler om brukerutbetaling er utbetalt`() {
-        rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "OVERFØRT", gjeldendeStatus = "UTBETALT"))
+        rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "AVVENTER_ARBEIDSGIVERKVITTERING", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 1) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
         assertEquals("Utbetaling:utbetalingId til bruker gikk fra OVERFØRT til UTBETALT", utgåendeMelding.captured)
     }
 
     @Test
     fun `varsler ikke om brukerutbetaling går til annen status enn utbetalt`() {
-        rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "SENDT", gjeldendeStatus = "OVERFØRT"))
+        rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "IKKE_UTBETALT", gjeldendeStatus = "AVVENTER_ARBEIDSGIVERKVITTERING"))
         verify(exactly = 0) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
     }
 
     @Test
     fun `varsler om annullering av brukerutbetaling er utbetalt`() {
-        rapid.sendTestMessage(annullering(forrigeStatus = "OVERFØRT", gjeldendeStatus = "UTBETALT"))
+        rapid.sendTestMessage(annullering(forrigeStatus = "AVVENTER_ARBEIDSGIVERKVITTERING", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 1) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
         assertEquals("Utbetaling:utbetalingId til bruker gikk fra OVERFØRT til UTBETALT", utgåendeMelding.captured)
     }
 
     @Test
     fun `varsler ikke om brukerutbetaling ved UEND i linjer`() {
-        rapid.sendTestMessage(utbetalingMedLinjer(endringskode = "UEND", nettobeløp = 0, forrigeStatus = "OVERFØRT", gjeldendeStatus = "UTBETALT"))
+        rapid.sendTestMessage(utbetalingMedLinjer(endringskode = "UEND", nettobeløp = 0, forrigeStatus = "AVVENTER_ARBEIDSGIVERKVITTERING", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 0) { slackClientMock.postMessage(any()) }
     }
 
@@ -116,7 +116,7 @@ internal class BrukerutbetalingMonitorTest {
     fun utbetalingUtenLinjer() = """{
   "utbetalingId": "utbetalingId",
   "type": "UTBETALING",
-  "forrigeStatus": "OVERFØRT",
+  "forrigeStatus": "AVVENTER_ARBEIDSGIVERKVITTERING",
   "gjeldendeStatus": "UTBETALT",
   "personOppdrag": {
     "fagsystemId": "FAGSYSTEMID",
