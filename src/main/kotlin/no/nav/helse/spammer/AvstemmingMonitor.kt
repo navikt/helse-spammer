@@ -16,7 +16,7 @@ internal class AvstemmingMonitor(
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
     }
 
-    private val tidsstempel = DateTimeFormatter.ofPattern("eeee d. MMMM Y")
+    private val tidsstempel = DateTimeFormatter.ofPattern("eeee d. MMMM")
 
     init {
         River(rapidsConnection).apply {
@@ -33,14 +33,18 @@ internal class AvstemmingMonitor(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        val fagområde = when (val forkortelsen = packet["fagområde"].asText()) {
+            "SP" -> "brukerutbetalinger ($forkortelsen)"
+            "SPREF" -> "arbeidsgiverrefusjoner ($forkortelsen)"
+            else -> forkortelsen
+        }
         slackClient?.postMessage(String.format(
-            "Avstemming <%s|%s> for :calendar: %s for fagområde **%s** ble kjørt for %s siden. :chart_with_upwards_trend: %d oppdrag ble avstemt.",
-            Kibana.createUrl(String.format("\"%s\"", packet["@id"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
-            packet["@id"].asText(),
+            ":bank: Avstemming for *%s*: %d oppdrag frem til %s ble avstemt, <%s|for %s siden>.",
+            fagområde,
+            packet["antall_oppdrag"].asInt(),
             packet["dagen"].asLocalDate().format(tidsstempel),
-            packet["fagområde"].asText(),
+            Kibana.createUrl(String.format("\"%s\"", packet["@id"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
             humanReadableTime(ChronoUnit.SECONDS.between(packet["@opprettet"].asLocalDateTime(), LocalDateTime.now())),
-            packet["antall_oppdrag"].asInt()
         ))
     }
 }
