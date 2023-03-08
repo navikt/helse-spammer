@@ -22,7 +22,7 @@ internal class BrukerutbetalingMonitorTest {
     fun `varsler om brukerutbetaling er utbetalt`() {
         rapid.sendTestMessage(utbetalingMedLinjer(forrigeStatus = "AVVENTER_ARBEIDSGIVERKVITTERING", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 1) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
-        assertEquals("Utbetaling:utbetalingId til bruker gikk fra OVERFØRT til UTBETALT", utgåendeMelding.captured)
+        assertEquals("Utbetaling:utbetalingId til bruker gikk fra AVVENTER_ARBEIDSGIVERKVITTERING til UTBETALT", utgåendeMelding.captured)
     }
 
     @Test
@@ -35,7 +35,7 @@ internal class BrukerutbetalingMonitorTest {
     fun `varsler om annullering av brukerutbetaling er utbetalt`() {
         rapid.sendTestMessage(annullering(forrigeStatus = "AVVENTER_ARBEIDSGIVERKVITTERING", gjeldendeStatus = "UTBETALT"))
         verify(exactly = 1) { slackClientMock.postMessage(text = capture(utgåendeMelding)) }
-        assertEquals("Utbetaling:utbetalingId til bruker gikk fra OVERFØRT til UTBETALT", utgåendeMelding.captured)
+        assertEquals("Utbetaling:utbetalingId til bruker gikk fra AVVENTER_ARBEIDSGIVERKVITTERING til UTBETALT", utgåendeMelding.captured)
     }
 
     @Test
