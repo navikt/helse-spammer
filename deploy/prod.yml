@@ -43,6 +43,10 @@ spec:
         databases:
           - name: spammer
             envVarPrefix: DATABASE
+  accessPolicy:
+    outbound:
+      external:
+        - host: slack.com
   secureLogs:
     enabled: true
   envFrom:

@@ -35,6 +35,10 @@ spec:
   webproxy: true
   secureLogs:
     enabled: true
+  accessPolicy:
+    outbound:
+      external:
+        - host: slack.com
   env:
   - name: KAFKA_CONSUMER_GROUP_ID
     value: tbd-spammer-v1
