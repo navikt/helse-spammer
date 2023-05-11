@@ -27,14 +27,19 @@ internal class SlackmeldingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val melding = packet["melding"].asText()
-        slackClient?.postMessage("Hei, ${packet.navn} her :meow_wave: $melding")
+        slackClient?.postMessage("${packet.prefix} $melding")
     }
 
-    private val JsonMessage.navn get(): String {
-        val person = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asText()?.split(" ")?.last()
-        if (person != null) return person
-        val app = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.map { it.path("service").asText() }?.last()
-        if (app != null) return app
-        return "hemmelig beundrer"
+    private val JsonMessage.prefix get(): String {
+        val person = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asText()?.split(" ")?.lastOrNull()?.fintNavn
+        if (person != null) return "Hei! $person her :meow_wave:"
+        val apper = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.map { it.path("service").asText() } ?: emptyList()
+        if (apper.isEmpty()) return "Hei! En hemmelig beundrer her :meow_blush:"
+        if (apper.size == 1) return "Hei! ${apper.single().fintNavn} her :robot_face:"
+        val meg = apper.last().fintNavn
+        val godVenn = apper[apper.size - 2].fintNavn
+        return "Hei! $meg her, min gode venn $godVenn minnet meg på en ting :robot_face:"
     }
+
+    private val String.fintNavn get() = if (length < 2) uppercase() else substring(0, 1).uppercase() + substring(1)
 }
