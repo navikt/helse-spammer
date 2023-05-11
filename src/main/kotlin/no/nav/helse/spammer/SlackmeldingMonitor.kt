@@ -13,8 +13,11 @@ internal class SlackmeldingMonitor(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "slackmelding") }
-            validate { it.requireKey("melding") }
+            validate {
+                it.demandValue("@event_name", "slackmelding")
+                it.requireKey("melding")
+                it.interestedIn("@avsender.navn", "system_participating_services")
+            }
         }.register(this)
     }
 
@@ -24,6 +27,14 @@ internal class SlackmeldingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val melding = packet["melding"].asText()
-        slackClient?.postMessage(melding)
+        slackClient?.postMessage("Hei, ${packet.navn} her :meow_wave: $melding")
+    }
+
+    private val JsonMessage.navn get(): String {
+        val person = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asText()?.split(" ")?.last()
+        if (person != null) return person
+        val app = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.map { it.path("service").asText() }?.last()
+        if (app != null) return app
+        return "hemmelig beundrer"
     }
 }
