@@ -31,7 +31,6 @@ fun main() {
         AppStateMonitor(this, slackAlertsClient)
         LoopMonitor(this, slackAlertsClient)
         SlackmeldingMonitor(this, slackAlertsClient)
-        BrukerutbetalingMonitor(this, null)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
