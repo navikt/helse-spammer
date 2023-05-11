@@ -47,6 +47,7 @@ spec:
     outbound:
       external:
         - host: slack.com
+        - host: api.slack.com
   secureLogs:
     enabled: true
   envFrom:
