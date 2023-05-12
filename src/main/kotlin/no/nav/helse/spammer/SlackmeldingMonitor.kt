@@ -46,7 +46,7 @@ internal class SlackmeldingMonitor(
         }
 
         private val JsonMessage.epost get() = get("@avsender.epost").asText()
-        private val JsonMessage.suffix get() = if (person == null) "" else ". Om du ønsker å ta dette privat, <svar meg på mail da vel!|mailto:$epost>"
+        private val JsonMessage.suffix get() = if (person == null) "" else ". Om du ønsker å ta dette privat, <mailto:$epost|svar meg på mail da vel!>"
         private val JsonMessage.error get() = get("level").asText().uppercase() == "ERROR"
         private val JsonMessage.emoji get() = if (error) ":alert:" else ":speech_balloon:"
     }
