@@ -36,7 +36,7 @@ internal class SlackmeldingMonitor(
         private val JsonMessage.prefix get(): String {
             val person = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asText()?.split(" ")?.lastOrNull()?.fintNavn
             if (person != null) return "Hei! $person her :meow_wave:"
-            val apper = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.map { it.path("service").asText() }?.filterNot { it == "spammer" } ?: emptyList()
+            val apper = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.map { it.path("service").asText() }?.filterNot { it == "spammer" }?.distinct() ?: emptyList()
             if (apper.isEmpty()) return "Hei! En hemmelig beundrer her :meow_blush:"
             if (apper.size == 1) return "Hei! ${apper.single().fintNavn} her :robot_face:"
             val meg = apper.last().fintNavn
