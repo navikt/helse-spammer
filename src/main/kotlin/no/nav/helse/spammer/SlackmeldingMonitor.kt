@@ -25,7 +25,7 @@ internal class SlackmeldingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val melding = packet["melding"].asText()
-        packet.client?.postMessage("${packet.prefix} $melding")
+        packet.client?.postMessage("${packet.emoji} ${packet.prefix} $melding")
     }
 
     private val JsonMessage.client get() = if (error) slackAlertsClient else slackClient
@@ -44,5 +44,6 @@ internal class SlackmeldingMonitor(
             return "Hei! $meg her, min gode venn $godVenn minnet meg på en ting :robot_face:"
         }
         private val JsonMessage.error get() = get("level").asText().uppercase() == "ERROR"
+        private val JsonMessage.emoji get() = if (error) ":alert:" else ":speech_balloon:"
     }
 }
