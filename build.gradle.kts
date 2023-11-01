@@ -1,18 +1,18 @@
 
 val jvmTarget = "17"
 
-val junitJupiterVersion = "5.9.0"
-val testcontainersVersion = "1.17.4"
-val rapidsAndRiversVersion = "2022110411121667556720.8a951a765583"
+val junitJupiterVersion = "5.10.0"
+val testcontainersVersion = "1.19.1"
+val rapidsAndRiversVersion = "2023093008351696055717.ffdec6aede3d"
 val flywayCoreVersion = "9.7.0"
 val hikariCPVersion = "5.0.1"
-val postgresqlVersion = "42.5.0"
+val postgresqlVersion = "42.6.0"
 val kotliqueryVersion = "1.9.0"
 val risonVersion = "2.9.10.2"
 val mockkVersion = "1.12.3"
 
 plugins {
-    kotlin("jvm") version "1.7.20"
+    kotlin("jvm") version "1.9.10"
 }
 
 repositories {
@@ -58,9 +58,8 @@ tasks {
 
         doLast {
             configurations.runtimeClasspath.get().forEach {
-                val file = File("$buildDir/libs/${it.name}")
-                if (!file.exists())
-                    it.copyTo(file)
+                val file = File("${layout.buildDirectory.get()}/libs/${it.name}")
+                if (!file.exists()) it.copyTo(file)
             }
         }
     }
@@ -73,6 +72,6 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "7.4.2"
+        gradleVersion = "8.3"
     }
 }
