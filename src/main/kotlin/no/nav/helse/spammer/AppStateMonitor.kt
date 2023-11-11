@@ -16,6 +16,8 @@ internal class AppStateMonitor(
         private val log = LoggerFactory.getLogger(AppStateMonitor::class.java)
         private val sikkerLogg = LoggerFactory.getLogger("tjenestekall")
         private val natt = LocalTime.MIDNIGHT..LocalTime.of(5, 0)
+
+        private val ignorerApper = setOf("sparsom-prod-gcp-tbd")
     }
 
     init {
@@ -44,6 +46,7 @@ internal class AppStateMonitor(
         val now = LocalDateTime.now()
         if (now.toLocalTime() in natt || lastReportTime > now.minusMinutes(15)) return // don't create alerts too eagerly
         val appsDown = packet["states"]
+            .filterNot { it["app"].asText() in ignorerApper }
             .filter { it["state"].asInt() == 0 }
             .filter { it["last_active_time"].asLocalDateTime() < now.minusMinutes(2) }
             .map { Triple(it["app"].asText(), it["last_active_time"].asLocalDateTime(), it["instances"]
@@ -51,6 +54,7 @@ internal class AppStateMonitor(
                 .map { instance ->  Pair(instance.path("instance").asText(), instance.path("last_active_time").asLocalDateTime()) }
             ) }
         val slowInstances = packet["states"]
+            .filterNot { it["app"].asText() in ignorerApper }
             .filter { it["state"].asInt() == 1 } // appsDown inneholder allerede apper som er nede;
                                                  // her måler vi heller apper som totalt sett regnes for å være oppe, men har treige instanser
             .flatMap {
