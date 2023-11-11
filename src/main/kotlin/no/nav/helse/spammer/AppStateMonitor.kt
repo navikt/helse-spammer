@@ -16,8 +16,9 @@ internal class AppStateMonitor(
         private val log = LoggerFactory.getLogger(AppStateMonitor::class.java)
         private val sikkerLogg = LoggerFactory.getLogger("tjenestekall")
         private val natt = LocalTime.MIDNIGHT..LocalTime.of(5, 0)
-
-        private val ignorerApper = setOf("sparsom-prod-gcp-tbd")
+        // liste over apper man vil unngå å lage slackmeldinger for.
+        // følger formen: <appnavn>-<kluster>-<namespace>
+        private val ignorerApper = setOf("<appnavn>-prod-gcp-tbd")
     }
 
     init {
