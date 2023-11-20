@@ -18,7 +18,7 @@ internal class AppStateMonitor(
         private val natt = LocalTime.MIDNIGHT..LocalTime.of(5, 0)
         // liste over apper man vil unngå å lage slackmeldinger for.
         // følger formen: <appnavn>-<kluster>-<namespace>
-        private val ignorerApper = setOf("spare-prod-gcp-tbd")
+        private val ignorerApper = setOf("<appnavn>-prod-gcp-tbd")
     }
 
     init {
