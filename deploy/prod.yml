@@ -48,6 +48,8 @@ spec:
       external:
         - host: slack.com
         - host: api.slack.com
+      rules:
+        - application: spurtedu
   secureLogs:
     enabled: true
   envFrom:
