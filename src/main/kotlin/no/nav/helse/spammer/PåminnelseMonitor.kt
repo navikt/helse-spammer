@@ -9,7 +9,8 @@ import kotlin.time.ExperimentalTime
 internal class PåminnelseMonitor(
     rapidsConnection: RapidsConnection,
     slackClient: SlackClient?,
-    slackThreadDao: SlackThreadDao?
+    slackThreadDao: SlackThreadDao?,
+    spurteDuClient: SpurteDuClient
 ) {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
@@ -32,10 +33,10 @@ internal class PåminnelseMonitor(
             validate { it.requireKey("vedtaksperiodeId") }
             validate { it.requireAny("tilstand", interessanteTilstander.toList()) }
             validate { it.requireKey("antallGangerPåminnet") }
-        }.register(Påminnelser(slackClient, slackThreadDao))
+        }.register(Påminnelser(slackClient, slackThreadDao, spurteDuClient))
     }
 
-    private class Påminnelser(private val slackClient: SlackClient?, private val slackThreadDao: SlackThreadDao?): River.PacketListener {
+    private class Påminnelser(private val slackClient: SlackClient?, private val slackThreadDao: SlackThreadDao?, private val spurteDuClient: SpurteDuClient): River.PacketListener {
         override fun onPacket(packet: JsonMessage, context: MessageContext) {
             if (slackThreadDao == null) return
             val antallGangerPåminnet = packet["antallGangerPåminnet"].asInt()
@@ -46,7 +47,7 @@ internal class PåminnelseMonitor(
                 slackThreadDao,
                 packet["vedtaksperiodeId"].asText(),
                 String.format(
-                    "Vedtaksperiode <%s|%s> (<%s|tjenestekall>) har blitt påminnet %d ganger i %s!",
+                    "Vedtaksperiode <%s|%s> (<%s|tjenestekall>) har blitt påminnet %d ganger i %s (<%s|spanner>)!",
                     Kibana.createUrl(String.format("\"%s\"", packet["vedtaksperiodeId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
                     packet["vedtaksperiodeId"].asText(),
                     Kibana.createUrl(
@@ -56,9 +57,13 @@ internal class PåminnelseMonitor(
                         "tjenestekall-*"
                     ),
                     antallGangerPåminnet,
-                    packet["tilstand"].asText()
+                    packet["tilstand"].asText(),
+                    spurteDuClient.utveksleUrl("https://spanner.intern.nav.no/person/${packet["aktørId"]}", påkrevdTilgang = tbdgruppeProd)
                 )
             )
+        }
+        private companion object {
+            private const val tbdgruppeProd = "f787f900-6697-440d-a086-d5bb56e26a9c"
         }
     }
 }

@@ -24,9 +24,14 @@ fun main() {
 
     val slackThreadDao = dataSourceBuilder?.let { SlackThreadDao(dataSourceBuilder.getDataSource()) }
 
+    val spurteDuClient = SpurteDuClient(when (System.getenv("NAIS_CLUSTER_NAME")) {
+        "prod-gcp" -> "https://spurte-du.intern.nav.no"
+        else -> "https://spurte-du.intern.dev.nav.no"
+    })
+
     RapidApplication.create(env).apply {
         UtbetalingMonitor(this, slackAlertsClient, slackThreadDao)
-        PåminnelseMonitor(this, slackAlertsClient, slackThreadDao)
+        PåminnelseMonitor(this, slackAlertsClient, slackThreadDao, spurteDuClient)
         AvstemmingMonitor(this, slackClient)
         AppStateMonitor(this, slackAlertsClient)
         LoopMonitor(this, slackAlertsClient)
