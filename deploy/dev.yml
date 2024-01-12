@@ -36,6 +36,8 @@ spec:
     enabled: true
   accessPolicy:
     outbound:
+      rules:
+        - application: spurtedu
       external:
         - host: slack.com
         - host: api.slack.com
