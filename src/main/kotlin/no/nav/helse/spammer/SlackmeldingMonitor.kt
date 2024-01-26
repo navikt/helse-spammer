@@ -14,7 +14,7 @@ internal class SlackmeldingMonitor(
             validate {
                 it.demandValue("@event_name", "slackmelding")
                 it.requireKey("melding")
-                it.interestedIn("@avsender.navn", "@avsender.epost", "system_participating_services", "level", "channel")
+                it.interestedIn("@avsender.navn", "@avsender.epost", "system_participating_services", "level")
             }
         }.register(this)
     }
@@ -25,8 +25,7 @@ internal class SlackmeldingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val melding = packet["melding"].asText()
-        val channel = packet["channel"].takeUnless { it.isMissingOrNull() }?.asText()
-        packet.client?.postMessage("${packet.emoji} ${packet.prefix} ${melding}${packet.suffix}", customChannel = channel)
+        packet.client?.postMessage("${packet.emoji} ${packet.prefix} ${melding}${packet.suffix}")
     }
 
     private val JsonMessage.client get() = if (error) slackAlertsClient else slackClient
