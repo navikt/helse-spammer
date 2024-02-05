@@ -3,7 +3,7 @@ val jvmTarget = "21"
 
 val junitJupiterVersion = "5.10.0"
 val testcontainersVersion = "1.19.1"
-val rapidsAndRiversVersion = "2024020422121707081126.d834a5d05bb2"
+val rapidsAndRiversVersion = "2024020507581707116327.1c34df474331"
 val flywayCoreVersion = "9.7.0"
 val hikariCPVersion = "5.0.1"
 val postgresqlVersion = "42.6.0"
