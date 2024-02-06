@@ -63,7 +63,7 @@ internal class PåminnelseMonitor(
             )
         }
         private companion object {
-            private const val tbdgruppeProd = "f787f900-6697-440d-a086-d5bb56e26a9c"
+            private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
         }
     }
 }
