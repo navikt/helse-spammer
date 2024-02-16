@@ -4,7 +4,7 @@ val jvmTarget = "21"
 val junitJupiterVersion = "5.10.0"
 val testcontainersVersion = "1.19.1"
 val rapidsAndRiversVersion = "2024020507581707116327.1c34df474331"
-val flywayCoreVersion = "9.7.0"
+val flywayVersion = "10.8.1"
 val hikariCPVersion = "5.0.1"
 val postgresqlVersion = "42.6.0"
 val kotliqueryVersion = "1.9.0"
@@ -35,7 +35,7 @@ repositories {
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
 
-    implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikariCPVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
