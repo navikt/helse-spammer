@@ -44,9 +44,9 @@ internal class SlackClient(private val accessToken: String, private val channel:
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
-    fun postMessage(text: String, threadTs: String? = null, broadcast: Boolean = false): String? {
+    fun postMessage(text: String, threadTs: String? = null, broadcast: Boolean = false, customChannel: String? = null): String? {
         return "https://slack.com/api/chat.postMessage".post(objectMapper.writeValueAsString(mutableMapOf<String, Any>(
-            "channel" to channel,
+            "channel" to (customChannel ?: channel),
             "text" to text
         ).apply {
             threadTs?.also {
