@@ -34,7 +34,7 @@ fun main() {
         PåminnelseMonitor(this, slackAlertsClient, slackThreadDao, spurteDuClient)
         AvstemmingMonitor(this, slackClient)
         AppStateMonitor(this, slackAlertsClient)
-        LoopMonitor(this, slackAlertsClient)
+        LoopMonitor(this, slackAlertsClient, spurteDuClient)
         SlackmeldingMonitor(this, slackClient, slackAlertsClient)
     }.apply {
         register(object : RapidsConnection.StatusListener {

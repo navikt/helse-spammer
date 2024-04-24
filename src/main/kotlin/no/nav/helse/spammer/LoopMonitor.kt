@@ -6,31 +6,34 @@ import java.time.LocalDateTime
 
 internal class LoopMonitor(
     rapidsConnection: RapidsConnection,
-    private val slackClient: SlackClient?
+    private val slackClient: SlackClient?,
+    private val spurteDuClient: SpurteDuClient
 ) : River.PacketListener {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
+        private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
     }
 
     init {
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "vedtaksperiode_i_loop") }
-            validate { it.requireKey("vedtaksperiodeId", "forrigeTilstand", "gjeldendeTilstand") }
+            validate { it.requireKey("vedtaksperiodeId", "fødselsnummer", "forrigeTilstand", "gjeldendeTilstand") }
         }.register(this)
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        sikkerLog.error("forstod ikke utbetaling_feilet:\n${problems.toExtendedReport()}")
+        sikkerLog.error("forstod ikke vedtaksperiode_i_loop:\n${problems.toExtendedReport()}")
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asText()
         val forrigeTilstand = packet["forrigeTilstand"].asText()
         val gjeldendeTilstand = packet["gjeldendeTilstand"].asText()
+        val spurteDuLink = spurteDuClient.utveksleUrl("https://spanner.intern.nav.no/person/${packet["fødselsnummer"].asText()}", påkrevdTilgang = tbdgruppeProd)
         slackClient?.postMessage(
             String.format(
                 "Advarsel: mulig loop oppdaget i vedtaksperiode: <%s|%s> hopper mellom %s og %s. " +
-                        "Sjekk <%s|tilstandsmaskinen>",
+                        "Sjekk <%s|tilstandsmaskinen> eller <%s|spanner>",
                 Kibana.createUrl(
                     String.format("\"%s\"", vedtaksperiodeId),
                     LocalDateTime.now().minusDays(30),
@@ -38,8 +41,10 @@ internal class LoopMonitor(
                     "tjenestekall-*"
                 ),
                 vedtaksperiodeId,
-                forrigeTilstand, gjeldendeTilstand,
-                "https://sporing.intern.nav.no/tilstandsmaskin/${vedtaksperiodeId}"
+                forrigeTilstand,
+                gjeldendeTilstand,
+                "https://sporing.ansatt.nav.no/tilstandsmaskin/${vedtaksperiodeId}",
+                spurteDuLink
             )
         )
     }

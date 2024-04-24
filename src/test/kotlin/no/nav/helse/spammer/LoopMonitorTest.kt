@@ -15,7 +15,7 @@ internal class LoopMonitorTest {
     private val utgåendeMelding: CapturingSlot<String> = CapturingSlot()
 
     init {
-        LoopMonitor(rapid, slackClientMock)
+        LoopMonitor(rapid, slackClientMock, mockk(relaxed = true))
     }
 
     @BeforeEach
@@ -46,6 +46,7 @@ internal class LoopMonitorTest {
           "@opprettet": "2021-04-28T11:15:17.013909",
           "@id": "df05431b-8909-4e00-8c90-04f9f90d95d8",
           "vedtaksperiodeId": "77033b13-1f07-4b1a-92b5-4f6cce88da8a",
+          "fødselsnummer": "123456789",
           "forrigeTilstand": "AVVENTER_INNTEKTSMELDING_ELLER_HISTORIKK_FERDIG_GAP",
           "gjeldendeTilstand": "AVVENTER_INNTEKTSMELDING_UFERDIG_GAP",
           "system_read_count": 0
