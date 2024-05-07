@@ -25,7 +25,7 @@ fun main() {
     val slackThreadDao = dataSourceBuilder?.let { SlackThreadDao(dataSourceBuilder.getDataSource()) }
 
     val spurteDuClient = SpurteDuClient(when (System.getenv("NAIS_CLUSTER_NAME")) {
-        "prod-gcp" -> "https://spurte-du.intern.nav.no"
+        "prod-gcp" -> "https://spurte-du.ansatt.nav.no"
         else -> "https://spurte-du.intern.dev.nav.no"
     })
 
