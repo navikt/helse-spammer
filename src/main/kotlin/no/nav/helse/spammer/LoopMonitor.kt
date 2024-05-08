@@ -29,7 +29,7 @@ internal class LoopMonitor(
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asText()
         val forrigeTilstand = packet["forrigeTilstand"].asText()
         val gjeldendeTilstand = packet["gjeldendeTilstand"].asText()
-        val spurteDuLink = spurteDuClient.utveksleUrl("https://spanner.intern.nav.no/person/${packet["fødselsnummer"].asText()}", påkrevdTilgang = tbdgruppeProd)
+        val spurteDuLink = spurteDuClient.utveksleUrl("https://spanner.ansatt.nav.no/person/${packet["fødselsnummer"].asText()}", påkrevdTilgang = tbdgruppeProd)
         slackClient?.postMessage(
             String.format(
                 "Advarsel: mulig loop oppdaget i vedtaksperiode: <%s|%s> hopper mellom %s og %s. " +

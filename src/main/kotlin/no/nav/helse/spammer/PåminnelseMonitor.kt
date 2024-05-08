@@ -58,7 +58,7 @@ internal class PåminnelseMonitor(
                     ),
                     antallGangerPåminnet,
                     packet["tilstand"].asText(),
-                    spurteDuClient.utveksleUrl("https://spanner.intern.nav.no/person/${packet["aktørId"].asText()}", påkrevdTilgang = tbdgruppeProd)
+                    spurteDuClient.utveksleUrl("https://spanner.ansatt.nav.no/person/${packet["aktørId"].asText()}", påkrevdTilgang = tbdgruppeProd)
                 )
             )
         }
