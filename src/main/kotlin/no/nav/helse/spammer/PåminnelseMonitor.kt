@@ -1,6 +1,7 @@
 package no.nav.helse.spammer
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import no.nav.helse.rapids_rivers.*
 import org.slf4j.LoggerFactory
 import kotlin.time.ExperimentalTime
@@ -29,7 +30,7 @@ internal class PåminnelseMonitor(
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "påminnelse") }
             validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
-            validate { it.requireKey("aktørId") }
+            validate { it.requireKey("fødselsnummer") }
             validate { it.requireKey("vedtaksperiodeId") }
             validate { it.requireAny("tilstand", interessanteTilstander.toList()) }
             validate { it.requireKey("antallGangerPåminnet") }
@@ -58,12 +59,9 @@ internal class PåminnelseMonitor(
                     ),
                     antallGangerPåminnet,
                     packet["tilstand"].asText(),
-                    spurteDuClient.utveksleUrl("https://spanner.ansatt.nav.no/person/${packet["aktørId"].asText()}", påkrevdTilgang = tbdgruppeProd)
+                    spannerlink(spurteDuClient, packet["fødselsnummer"].asText())
                 )
             )
-        }
-        private companion object {
-            private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
         }
     }
 }

@@ -1,5 +1,11 @@
 package no.nav.helse.spammer
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.azure.AzureToken
+import com.github.navikt.tbd_libs.azure.AzureTokenProvider
+import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import kotlin.time.ExperimentalTime
@@ -24,10 +30,19 @@ fun main() {
 
     val slackThreadDao = dataSourceBuilder?.let { SlackThreadDao(dataSourceBuilder.getDataSource()) }
 
-    val spurteDuClient = SpurteDuClient(when (System.getenv("NAIS_CLUSTER_NAME")) {
-        "prod-gcp" -> "https://spurte-du.ansatt.nav.no"
-        else -> "https://spurte-du.intern.dev.nav.no"
-    })
+    val spurteDuClient = SpurteDuClient(
+        objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule()),
+        tokenProvider = object : AzureTokenProvider {
+            // trenger egentlig ikke token provider fordi vi slår aldri opp en hemmelighet
+            override fun bearerToken(scope: String): AzureToken {
+                TODO("Not yet implemented")
+            }
+
+            override fun onBehalfOfToken(scope: String, token: String): AzureToken {
+                TODO("Not yet implemented")
+            }
+        }
+    )
 
     RapidApplication.create(env).apply {
         UtbetalingMonitor(this, slackAlertsClient, slackThreadDao)

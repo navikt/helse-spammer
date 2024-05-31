@@ -1,5 +1,10 @@
 package no.nav.helse.spammer
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.spurtedu.SkjulRequest
+import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import no.nav.helse.rapids_rivers.*
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -11,7 +16,6 @@ internal class LoopMonitor(
 ) : River.PacketListener {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
-        private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
     }
 
     init {
@@ -29,7 +33,7 @@ internal class LoopMonitor(
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asText()
         val forrigeTilstand = packet["forrigeTilstand"].asText()
         val gjeldendeTilstand = packet["gjeldendeTilstand"].asText()
-        val spurteDuLink = spurteDuClient.utveksleUrl("https://spanner.ansatt.nav.no/person/${packet["fødselsnummer"].asText()}", påkrevdTilgang = tbdgruppeProd)
+
         slackClient?.postMessage(
             String.format(
                 "Advarsel: mulig loop oppdaget i vedtaksperiode: <%s|%s> hopper mellom %s og %s. " +
@@ -44,8 +48,24 @@ internal class LoopMonitor(
                 forrigeTilstand,
                 gjeldendeTilstand,
                 "https://sporing.ansatt.nav.no/tilstandsmaskin/${vedtaksperiodeId}",
-                spurteDuLink
+                spannerlink(spurteDuClient, packet["fødselsnummer"].asText())
             )
         )
     }
+}
+
+private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
+
+fun spannerlink(spurteDuClient: SpurteDuClient, fnr: String): String {
+    val payload = SkjulRequest.SkjulTekstRequest(
+        tekst = objectMapper.writeValueAsString(mapOf(
+            "ident" to fnr,
+            "identtype" to "FNR"
+        )),
+        påkrevdTilgang = tbdgruppeProd
+    )
+
+    val spurteDuLink = spurteDuClient.skjul(payload)
+    return "https://spanner.ansatt.nav.no/person/${spurteDuLink.id}"
 }

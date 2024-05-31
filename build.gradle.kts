@@ -4,6 +4,7 @@ val jvmTarget = "21"
 val junitJupiterVersion = "5.10.2"
 val testcontainersVersion = "1.19.5"
 val rapidsAndRiversVersion = "2024020507581707116327.1c34df474331"
+val tbdLibsVersion = "2024.05.31-08.02-2c3441c1"
 val flywayVersion = "10.8.1"
 val hikariCPVersion = "5.1.0"
 val postgresqlVersion = "42.7.2"
@@ -34,6 +35,7 @@ repositories {
 
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
+    implementation("com.github.navikt.tbd-libs:spurtedu-client:$tbdLibsVersion")
 
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikariCPVersion")
