@@ -61,7 +61,7 @@ internal class AppStateMonitor(
             .flatMap {
                 it["instances"]
                     .filter { instance -> instance.path("state").asInt() == 0 }
-                    .filter { it["last_active_time"].asLocalDateTime() < now.minusSeconds(150) }
+                    .filter { it["last_active_time"].asLocalDateTime() < now.minusSeconds(70) }
                     .filter { instance ->  instance.path("last_active_time").asLocalDateTime() > now.minusMinutes(20) }
                     .map { instance ->  Pair(instance.path("instance").asText(), instance.path("last_active_time").asLocalDateTime()) }
             }
