@@ -25,12 +25,11 @@ internal class SlackmeldingMonitor(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val melding = packet["melding"].asText()
-        val channel = packet["channel"].takeUnless { it.isMissingOrNull() }?.asText()
         val skalHaPrefix = packet["utenPrefix"].isMissingOrNull()
         val skalHaSuffix = packet["utenSuffix"].isMissingOrNull()
         val prefix = if (skalHaPrefix) "${packet.emoji} ${packet.prefix}" else ""
         val suffix = if (skalHaSuffix) packet.suffix else ""
-        packet.client?.postMessage(prefix + melding + suffix, customChannel = channel)
+        packet.client?.postMessage(prefix + melding + suffix, customChannel = packet.channel)
     }
 
     private val JsonMessage.client get() = if (error) slackAlertsClient else slackClient
@@ -54,5 +53,12 @@ internal class SlackmeldingMonitor(
         private val JsonMessage.suffix get() = if (person == null) "" else ". Om du ønsker å ta dette privat, <mailto:$epost|svar meg på mail da vel!>"
         private val JsonMessage.error get() = get("level").asText().uppercase() == "ERROR"
         private val JsonMessage.emoji get() = if (error) ":alert:" else ":speech_balloon:"
+
+        private val JsonMessage.channel get(): String? {
+            val customChannel = get("channel").takeUnless { it.isMissingOrNull() }?.asText()
+            if (customChannel != null) return customChannel // Om kanal er satt i meldingen bruker vi den
+            return if (error) "C077X4MJYQK" // Om det er en error sendes den til spleiselagts alert-kanal
+            else null // Default bømlo alerts-kanal
+        }
     }
 }
