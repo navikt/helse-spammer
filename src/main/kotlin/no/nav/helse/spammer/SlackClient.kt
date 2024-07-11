@@ -90,6 +90,7 @@ internal class SlackClient(private val accessToken: String, private val channel:
             log.warn("timeout waiting for reply", err)
         } catch (err: IOException) {
             log.error("feil ved posting til slack: {}", err.message, err)
+            tjenestekall.info("Feil ved posting til slack med payload=$jsonPayload")
         } finally {
             connection?.disconnect()
         }
