@@ -8,7 +8,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
-import java.net.URL
+import java.net.URI
 import java.time.LocalDateTime
 
 internal fun SlackClient?.postMessage(slackThreadDao: SlackThreadDao, vedtaksperiodeId: String, message: String) {
@@ -61,7 +61,7 @@ internal class SlackClient(private val accessToken: String, private val channel:
     private fun String.post(jsonPayload: String): String? {
         var connection: HttpURLConnection? = null
         try {
-            connection = (URL(this).openConnection() as HttpURLConnection).apply {
+            connection = (URI(this).toURL().openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 connectTimeout = 10000
                 readTimeout = 10000
