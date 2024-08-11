@@ -63,8 +63,8 @@ internal class SlackClient(private val accessToken: String, private val channel:
         try {
             connection = (URL(this).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
-                connectTimeout = 5000
-                readTimeout = 5000
+                connectTimeout = 10000
+                readTimeout = 10000
                 doOutput = true
                 setRequestProperty("Authorization", "Bearer $accessToken")
                 setRequestProperty("Content-Type", "application/json; charset=utf-8")
