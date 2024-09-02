@@ -36,6 +36,7 @@ repositories {
 dependencies {
     implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
     implementation("com.github.navikt.tbd-libs:spurtedu-client:$tbdLibsVersion")
+    implementation("com.github.navikt.tbd-libs:retry:$tbdLibsVersion")
 
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikariCPVersion")

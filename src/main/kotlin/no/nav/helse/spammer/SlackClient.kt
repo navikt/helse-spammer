@@ -3,6 +3,7 @@ package no.nav.helse.spammer
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.retry.retryBlocking
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.InputStream
@@ -58,7 +59,7 @@ internal class SlackClient(private val accessToken: String, private val channel:
         }
     }
 
-    private fun String.post(jsonPayload: String): String? {
+    private fun String.post(jsonPayload: String): String? = retryBlocking {
         var connection: HttpURLConnection? = null
         try {
             connection = (URI(this).toURL().openConnection() as HttpURLConnection).apply {
@@ -78,14 +79,14 @@ internal class SlackClient(private val accessToken: String, private val channel:
             if (connection.responseCode !in 200..299) {
                 log.warn("response from slack: code=$responseCode")
                 tjenestekall.warn("response from slack: code=$responseCode body=${connection.errorStream.readText()}")
-                return null
+                return@retryBlocking null
             }
 
             val responseBody = connection.inputStream.readText()
             log.debug("response from slack: code=$responseCode")
             tjenestekall.debug("response from slack: code=$responseCode body=$responseBody")
 
-            return responseBody
+            return@retryBlocking responseBody
         } catch (err: SocketTimeoutException) {
             log.warn("timeout waiting for reply", err)
         } catch (err: IOException) {
@@ -95,7 +96,7 @@ internal class SlackClient(private val accessToken: String, private val channel:
             connection?.disconnect()
         }
 
-        return null
+        return@retryBlocking null
     }
 
     private fun InputStream.readText() = use { it.bufferedReader().readText() }
