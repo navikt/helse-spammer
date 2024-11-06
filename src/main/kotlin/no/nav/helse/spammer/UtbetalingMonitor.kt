@@ -18,10 +18,10 @@ internal class UtbetalingMonitor(
     init {
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "transaksjon_status") }
+            validate { it.demandAny("status", listOf("AVVIST", "FEIL")) }
             validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
             validate { it.requireKey("utbetalingId", "beskrivelse") }
             validate { it.interestedIn("kodemelding") }
-            validate { it.requireAny("status", listOf("AVVIST", "FEIL")) }
         }.register(UtbetalingFeilet(slackClient, slackThreadDao))
     }
 
