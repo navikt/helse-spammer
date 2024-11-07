@@ -37,7 +37,7 @@ internal class UtbetalingMonitor(
                     "Utbetaling <%s|%s> (<%s|tjenestekall>) feilet med status %s! Beskrivelse: %s%s)",
                     Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
                     packet["utbetalingId"].asText(),
-                    Kibana.createUrl(String.format("\"%s\"", packet["vedtaksperiodeId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1), null, "tjenestekall-*"),
+                    Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1), null, "tjenestekall-*"),
                     packet["status"].asText(),
                     packet["beskrivelse"].asText(),
                     packet["kodemelding"].asText()?.let { " ($it)" }
