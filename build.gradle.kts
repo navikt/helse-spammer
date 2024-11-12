@@ -1,6 +1,3 @@
-
-val jvmTarget = "21"
-
 val junitJupiterVersion = "5.10.2"
 val testcontainersVersion = "1.19.5"
 val rapidsAndRiversVersion = "2024020507581707116327.1c34df474331"
@@ -53,13 +50,13 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
-tasks {
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(jvmTarget)
-        }
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of("21"))
     }
+}
 
+tasks {
     named<Jar>("jar") {
         archiveBaseName.set("app")
 
