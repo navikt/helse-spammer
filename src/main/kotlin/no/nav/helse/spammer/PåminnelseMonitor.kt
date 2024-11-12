@@ -1,8 +1,14 @@
 package no.nav.helse.spammer
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
-import no.nav.helse.rapids_rivers.*
+import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
 import kotlin.time.ExperimentalTime
 
@@ -38,7 +44,7 @@ internal class PåminnelseMonitor(
     }
 
     private class Påminnelser(private val slackClient: SlackClient?, private val slackThreadDao: SlackThreadDao?, private val spurteDuClient: SpurteDuClient): River.PacketListener {
-        override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
             if (slackThreadDao == null) return
             val antallGangerPåminnet = packet["antallGangerPåminnet"].asInt()
             // sørger for å lage en alarm for hver 20. påminnelse
