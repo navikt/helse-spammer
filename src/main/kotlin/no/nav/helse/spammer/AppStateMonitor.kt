@@ -31,7 +31,7 @@ internal class AppStateMonitor(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "app_status") }
+            precondition { it.requireValue("@event_name", "app_status") }
             validate { it.requireArray("states") {
                 requireKey("app", "state")
                 require("last_active_time", JsonNode::asLocalDateTime)

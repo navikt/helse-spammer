@@ -26,7 +26,7 @@ internal class LoopMonitor(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "vedtaksperiode_i_loop") }
+            precondition { it.requireValue("@event_name", "vedtaksperiode_i_loop") }
             validate { it.requireKey("vedtaksperiodeId", "fødselsnummer", "forrigeTilstand", "gjeldendeTilstand") }
         }.register(this)
     }

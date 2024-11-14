@@ -18,8 +18,8 @@ internal class SlackmeldingMonitor(
 
     init {
         River(rapidsConnection).apply {
+            precondition { it.requireValue("@event_name", "slackmelding") }
             validate {
-                it.demandValue("@event_name", "slackmelding")
                 it.requireKey("melding")
                 it.interestedIn("@avsender.navn", "@avsender.epost", "system_participating_services", "level", "channel", "utenPrefix", "utenSuffix")
             }

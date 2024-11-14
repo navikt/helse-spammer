@@ -24,8 +24,10 @@ internal class UtbetalingMonitor(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "transaksjon_status") }
-            validate { it.demandAny("status", listOf("AVVIST", "FEIL")) }
+            precondition {
+                it.requireValue("@event_name", "transaksjon_status")
+                it.requireAny("status", listOf("AVVIST", "FEIL"))
+            }
             validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
             validate { it.requireKey("utbetalingId", "beskrivelse") }
             validate { it.interestedIn("kodemelding") }

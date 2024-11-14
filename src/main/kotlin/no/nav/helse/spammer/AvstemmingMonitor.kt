@@ -28,7 +28,7 @@ internal class AvstemmingMonitor(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "avstemming") }
+            precondition { it.requireValue("@event_name", "avstemming") }
             validate { it.requireKey("@id", "antall_oppdrag", "fagområde") }
             validate { it.require("dagen", JsonNode::asLocalDate) }
             validate { it.requireKey("detaljer.nøkkel_fom", "detaljer.nøkkel_tom", "detaljer.antall_oppdrag", "detaljer.antall_avstemmingsmeldinger") }

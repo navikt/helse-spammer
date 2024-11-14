@@ -34,7 +34,7 @@ internal class PåminnelseMonitor(
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "påminnelse") }
+            precondition { it.requireValue("@event_name", "påminnelse") }
             validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
             validate { it.requireKey("fødselsnummer") }
             validate { it.requireKey("vedtaksperiodeId") }
