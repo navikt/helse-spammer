@@ -1,50 +1,35 @@
 package no.nav.helse.spammer
 
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import org.flywaydb.core.Flyway
+import com.github.navikt.tbd_libs.test_support.DatabaseContainers
+import com.github.navikt.tbd_libs.test_support.TestDataSource
+import kotliquery.queryOf
+import kotliquery.sessionOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.PostgreSQLContainer
 
+val databaseContainer = DatabaseContainers.container("spammer")
 internal class MigrationTest {
 
-    private val postgres = PostgreSQLContainer<Nothing>("postgres:13")
-
-    private lateinit var hikariConfig: HikariConfig
+    private lateinit var testDataSource: TestDataSource
 
     @BeforeEach
-    fun `start postgres`() {
-        postgres.start()
-        hikariConfig = HikariConfig().apply {
-            jdbcUrl = postgres.jdbcUrl
-            username = postgres.username
-            password = postgres.password
-            maximumPoolSize = 3
-            minimumIdle = 1
-            idleTimeout = 10001
-            connectionTimeout = 1000
-            maxLifetime = 30001
-            initializationFailTimeout = 5000
-        }
+    fun setup() {
+        testDataSource = databaseContainer.nyTilkobling()
     }
 
-    private fun runMigration() =
-        Flyway.configure()
-            .dataSource(HikariDataSource(hikariConfig))
-            .load()
-            .migrate()
-
     @AfterEach
-    fun `stop postgres`() {
-        postgres.stop()
+    fun cleanup() {
+        databaseContainer.droppTilkobling(testDataSource)
     }
 
     @Test
     fun `migreringer skal kjøre`() {
-        val migrations = runMigration()
-        assertTrue(migrations.migrationsExecuted > 0, "Ingen migreringer ble kjørt")
+        assertTrue(sessionOf(testDataSource.ds).use {
+            it.run(queryOf("select exists (select from information_schema.tables where table_schema='public' and table_name=?)", "slack_thread").map { row ->
+                row.boolean(1)
+            }.asList).single()
+        })
     }
 }
