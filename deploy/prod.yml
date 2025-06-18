@@ -51,6 +51,8 @@ spec:
         - host: slack.com
         - host: api.slack.com
       rules:
+        - application: logging
+          namespace: nais-system
         - application: spurtedu
   secureLogs:
     enabled: true
