@@ -9,7 +9,7 @@ val risonVersion = "2.9.10.2"
 val mockkVersion = "1.13.17"
 
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.10"
 }
 
 repositories {
