@@ -4,7 +4,7 @@ val tbdLibsVersion = "2025.11.04-10.12-3a167132"
 val flywayVersion = "11.5.0"
 val hikariCPVersion = "6.3.0"
 val postgresqlVersion = "42.7.7"
-val kotliqueryVersion = "1.9.0"
+val kotliqueryVersion = "1.9.1"
 val risonVersion = "2.9.10.2"
 val mockkVersion = "1.13.17"
 
