@@ -32,8 +32,6 @@ spec:
     enabled: true
     path: /metrics
   webproxy: true
-  secureLogs:
-    enabled: true
   accessPolicy:
     outbound:
       rules:
