@@ -6,7 +6,7 @@ val hikariCPVersion = "6.3.0"
 val postgresqlVersion = "42.7.7"
 val kotliqueryVersion = "1.9.0"
 val risonVersion = "2.9.10.2"
-val mockkVersion = "1.13.17"
+val mockkVersion = "1.14.7"
 
 plugins {
     kotlin("jvm") version "2.2.21"
