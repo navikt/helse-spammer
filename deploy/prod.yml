@@ -55,7 +55,8 @@ spec:
           namespace: nais-system
         - application: spurtedu
   envFrom:
-    - secret: spammer-v2
+    - configmap: slack-channels
+    - secret: slack-bot-user
   env:
     - name: KAFKA_CONSUMER_GROUP_ID
       value: tbd-spammer-v1

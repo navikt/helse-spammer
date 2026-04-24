@@ -7,21 +7,21 @@ import com.github.navikt.tbd_libs.azure.AzureTokenProvider
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import com.github.navikt.tbd_libs.result_object.Result
 import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
-import no.nav.helse.rapids_rivers.RapidApplication
 import kotlin.time.ExperimentalTime
+import no.nav.helse.rapids_rivers.RapidApplication
 
 @ExperimentalTime
 fun main() {
     val env = System.getenv()
     val dataSourceBuilder = env["DATABASE_HOST"]?.let { DataSourceBuilder(env) }
 
-    val slackClient = env["SLACK_ACCESS_TOKEN"]?.let {
+    val slackOpsClient = env["SLACK_BOT_USER_OAUTH_TOKEN"]?.let {
         SlackClient(
             accessToken = it,
-            channel = env.getValue("SLACK_CHANNEL_ID")
+            channel = env.getOrElse("SLACK_CHANNEL_ID_OPS") { env.getValue("SLACK_CHANNEL_ID_ALERTS") }
         )
     }
-    val slackAlertsClient = env["SLACK_ACCESS_TOKEN"]?.let {
+    val slackAlertsClient = env["SLACK_BOT_USER_OAUTH_TOKEN"]?.let {
         SlackClient(
             accessToken = it,
             channel = env.getValue("SLACK_CHANNEL_ID_ALERTS")
@@ -47,10 +47,10 @@ fun main() {
     RapidApplication.create(env).apply {
         UtbetalingMonitor(this, slackAlertsClient, slackThreadDao)
         PåminnelseMonitor(this, slackAlertsClient, slackThreadDao, spurteDuClient)
-        AvstemmingMonitor(this, slackClient)
+        AvstemmingMonitor(this, slackOpsClient)
         AppStateMonitor(this, slackAlertsClient)
         LoopMonitor(this, slackAlertsClient, spurteDuClient)
-        SlackmeldingMonitor(this, slackClient, slackAlertsClient)
+        SlackmeldingMonitor(this, slackOpsClient, slackAlertsClient)
     }.apply {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
