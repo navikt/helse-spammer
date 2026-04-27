@@ -64,7 +64,7 @@ internal class SlackmeldingMonitor(
         private val JsonMessage.channel get(): String? {
             val customChannel = get("channel").takeUnless { it.isMissingOrNull() }?.asText()
             if (customChannel != null) return customChannel // Om kanal er satt i meldingen bruker vi den
-            return if (error) "C077X4MJYQK" // Om det er en error sendes den til spleiselagts alert-kanal
+            return if (error) "C0ARQ58N63E" // Om det er en error sendes den til spleiselagts alert-kanal
             else null // Default bømlo alerts-kanal
         }
     }
