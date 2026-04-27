@@ -60,12 +60,6 @@ internal class SlackmeldingMonitor(
         private val JsonMessage.suffix get() = if (person == null) "" else ". Om du ønsker å ta dette privat, <mailto:$epost|svar meg på mail da vel!>"
         private val JsonMessage.error get() = get("level").asText().uppercase() == "ERROR"
         private val JsonMessage.emoji get() = if (error) ":alert:" else ":speech_balloon:"
-
-        private val JsonMessage.channel get(): String? {
-            val customChannel = get("channel").takeUnless { it.isMissingOrNull() }?.asText()
-            if (customChannel != null) return customChannel // Om kanal er satt i meldingen bruker vi den
-            return if (error) "C0ARQ58N63E" // Om det er en error sendes den til spleiselagts alert-kanal
-            else null // Default bømlo alerts-kanal
-        }
+        private val JsonMessage.channel get(): String? = get("channel").takeUnless { it.isMissingOrNull() }?.asText()
     }
 }
