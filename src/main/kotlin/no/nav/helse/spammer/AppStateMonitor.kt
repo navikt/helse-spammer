@@ -1,6 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+import tools.jackson.databind.JsonNode
 
 internal class AppStateMonitor(
     rapidsConnection: RapidsConnection,

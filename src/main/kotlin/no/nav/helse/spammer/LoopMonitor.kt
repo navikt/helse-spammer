@@ -1,8 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
@@ -14,6 +11,10 @@ import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
+import tools.jackson.datatype.jsr310.JavaTimeModule
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 
 internal class LoopMonitor(
     rapidsConnection: RapidsConnection,
@@ -60,7 +61,10 @@ internal class LoopMonitor(
     }
 }
 
-private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+private val objectMapper: ObjectMapper = jacksonMapperBuilder()
+    .addModule(JavaTimeModule())
+    .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
+    .build()
 private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
 
 fun spannerlink(spurteDuClient: SpurteDuClient, fnr: String): String {

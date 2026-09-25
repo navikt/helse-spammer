@@ -1,10 +1,11 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.retry.retryBlocking
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
+import tools.jackson.datatype.jsr310.JavaTimeModule
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -40,9 +41,11 @@ internal class SlackClient(private val accessToken: String, private val channel:
     private companion object {
         private val tjenestekall = LoggerFactory.getLogger("tjenestekall")
         private val log = LoggerFactory.getLogger(SlackClient::class.java)
-        private val objectMapper = jacksonObjectMapper()
-            .registerModule(JavaTimeModule())
+        private val objectMapper = jacksonMapperBuilder()
+            .addModule(JavaTimeModule())
+            .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build()
     }
 
     fun postMessage(text: String, threadTs: String? = null, broadcast: Boolean = false, customChannel: String? = null): String? {

@@ -1,7 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.azure.AzureToken
 import com.github.navikt.tbd_libs.azure.AzureTokenProvider
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
@@ -9,6 +7,9 @@ import com.github.navikt.tbd_libs.result_object.Result
 import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import kotlin.time.ExperimentalTime
 import no.nav.helse.rapids_rivers.RapidApplication
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
+import tools.jackson.datatype.jsr310.JavaTimeModule
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 
 @ExperimentalTime
 fun main() {
@@ -31,7 +32,10 @@ fun main() {
     val slackThreadDao = dataSourceBuilder?.let { SlackThreadDao(dataSourceBuilder.getDataSource()) }
 
     val spurteDuClient = SpurteDuClient(
-        objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule()),
+        objectMapper = jacksonMapperBuilder()
+            .addModule(JavaTimeModule())
+            .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
+            .build(),
         tokenProvider = object : AzureTokenProvider {
             // trenger egentlig ikke token provider fordi vi slår aldri opp en hemmelighet
             override fun bearerToken(scope: String): Result<AzureToken> {
