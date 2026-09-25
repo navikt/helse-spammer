@@ -2,6 +2,7 @@ package no.nav.helse.spammer
 
 import com.github.navikt.tbd_libs.retry.retryBlocking
 import org.slf4j.LoggerFactory
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
