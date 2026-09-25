@@ -1,6 +1,6 @@
 # Spammer
 
-![Bygg og deploy](https://github.com/navikt/helse-spammer/workflows/Bygg%20og%20deploy/badge.svg)
+![Bygg, test og deploy](https://github.com/navikt/helse-spammer/actions/workflows/main.yml/badge.svg)
 
 ## Beskrivelse
 
