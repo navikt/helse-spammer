@@ -1,6 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
@@ -11,6 +10,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.rapids_rivers.*
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
@@ -55,15 +55,15 @@ internal class AppStateMonitor(
         val now = LocalDateTime.now()
         if (now.toLocalTime() in natt || lastReportTime > now.minusMinutes(15)) return // don't create alerts too eagerly
         val appsDown = packet["states"]
-            .filterNot { it["app"].asText() in ignorerApper }
+            .filterNot { it["app"].asString() in ignorerApper }
             .filter { it["state"].asInt() == 0 }
             .filter { it["last_active_time"].asLocalDateTime() < now.minusMinutes(2) }
-            .map { Triple(it["app"].asText(), it["last_active_time"].asLocalDateTime(), it["instances"]
+            .map { Triple(it["app"].asString(), it["last_active_time"].asLocalDateTime(), it["instances"]
                 .filter { instance -> instance.path("state").asInt() == 0 }
-                .map { instance ->  Pair(instance.path("instance").asText(), instance.path("last_active_time").asLocalDateTime()) }
+                .map { instance ->  Pair(instance.path("instance").asString(), instance.path("last_active_time").asLocalDateTime()) }
             ) }
         val slowInstances = packet["states"]
-            .filterNot { it["app"].asText() in ignorerApper }
+            .filterNot { it["app"].asString() in ignorerApper }
             .filter { it["state"].asInt() == 1 } // appsDown inneholder allerede apper som er nede;
                                                  // her måler vi heller apper som totalt sett regnes for å være oppe, men har treige instanser
             .flatMap {
@@ -71,7 +71,7 @@ internal class AppStateMonitor(
                     .filter { instance -> instance.path("state").asInt() == 0 }
                     .filter { it["last_active_time"].asLocalDateTime() < now.minusSeconds(70) }
                     .filter { instance ->  instance.path("last_active_time").asLocalDateTime() > now.minusMinutes(20) }
-                    .map { instance ->  Pair(instance.path("instance").asText(), instance.path("last_active_time").asLocalDateTime()) }
+                    .map { instance ->  Pair(instance.path("instance").asString(), instance.path("last_active_time").asLocalDateTime()) }
             }
 
         if (appsDown.isEmpty() && slowInstances.isEmpty()) return

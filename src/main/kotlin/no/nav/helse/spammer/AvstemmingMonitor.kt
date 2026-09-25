@@ -1,6 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
@@ -11,6 +10,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -42,7 +42,7 @@ internal class AvstemmingMonitor(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
-        val fagområde = when (val forkortelsen = packet["fagområde"].asText()) {
+        val fagområde = when (val forkortelsen = packet["fagområde"].asString()) {
             "SP" -> "brukerutbetalinger ($forkortelsen)"
             "SPREF" -> "arbeidsgiverrefusjoner ($forkortelsen)"
             else -> forkortelsen
@@ -52,7 +52,7 @@ internal class AvstemmingMonitor(
             fagområde,
             packet["antall_oppdrag"].asInt(),
             packet["dagen"].asLocalDate().format(tidsstempel),
-            Kibana.createUrl(String.format("\"%s\"", packet["@id"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
+            Kibana.createUrl(String.format("\"%s\"", packet["@id"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
             humanReadableTime(ChronoUnit.SECONDS.between(packet["@opprettet"].asLocalDateTime(), LocalDateTime.now())),
         ))
     }

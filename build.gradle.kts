@@ -11,6 +11,9 @@ dependencies {
     implementation(libs.tbdLibs.spurteduClient)
     implementation(libs.tbdLibs.retry)
 
+    implementation(libs.jackson.kotlin)
+    implementation(libs.jackson2.databind)
+
     implementation(libs.flyway.database.postgresql)
     implementation(libs.hikaricp)
     implementation(libs.postgresql)

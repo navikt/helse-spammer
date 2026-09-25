@@ -1,6 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
@@ -10,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -52,20 +52,20 @@ internal class PåminnelseMonitor(
 
             slackClient?.postMessage(
                 slackThreadDao,
-                packet["vedtaksperiodeId"].asText(),
+                packet["vedtaksperiodeId"].asString(),
                 String.format(
                     "Vedtaksperiode <%s|%s> (<%s|tjenestekall>) har blitt påminnet %d ganger i %s (<%s|spanner>)!",
-                    Kibana.createUrl(String.format("\"%s\"", packet["vedtaksperiodeId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
-                    packet["vedtaksperiodeId"].asText(),
+                    Kibana.createUrl(String.format("\"%s\"", packet["vedtaksperiodeId"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
+                    packet["vedtaksperiodeId"].asString(),
                     Kibana.createUrl(
-                        String.format("\"%s\"", packet["vedtaksperiodeId"].asText()),
+                        String.format("\"%s\"", packet["vedtaksperiodeId"].asString()),
                         packet["@opprettet"].asLocalDateTime().minusHours(1),
                         null,
                         "tjenestekall-*"
                     ),
                     antallGangerPåminnet,
-                    packet["tilstand"].asText(),
-                    spannerlink(spurteDuClient, packet["fødselsnummer"].asText())
+                    packet["tilstand"].asString(),
+                    spannerlink(spurteDuClient, packet["fødselsnummer"].asString())
                 )
             )
         }

@@ -10,6 +10,7 @@ object Kibana {
     private const val urlFormat = "$baseUrl#/discover?_a=%s&_g=%s"
     private const val defaultIndex = "96e648c0-980a-11e9-830a-e17bbd64b4db"
 
+    // Rison finnes kun som en Jackson 2-utvidelse, så denne mapperen blir stående på Jackson 2.
     private val risonMapper = ObjectMapper(RisonFactory())
 
     fun createUrl(query: String, startTime: LocalDateTime, endTime: LocalDateTime? = null, index: String = defaultIndex) =

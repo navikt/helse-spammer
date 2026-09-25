@@ -1,8 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
@@ -13,6 +10,8 @@ import com.github.navikt.tbd_libs.spurtedu.SkjulRequest
 import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDateTime
 
 internal class LoopMonitor(
@@ -36,9 +35,9 @@ internal class LoopMonitor(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
-        val vedtaksperiodeId = packet["vedtaksperiodeId"].asText()
-        val forrigeTilstand = packet["forrigeTilstand"].asText()
-        val gjeldendeTilstand = packet["gjeldendeTilstand"].asText()
+        val vedtaksperiodeId = packet["vedtaksperiodeId"].asString()
+        val forrigeTilstand = packet["forrigeTilstand"].asString()
+        val gjeldendeTilstand = packet["gjeldendeTilstand"].asString()
 
         slackClient?.postMessage(
             String.format(
@@ -54,13 +53,13 @@ internal class LoopMonitor(
                 forrigeTilstand,
                 gjeldendeTilstand,
                 "https://sporing.ansatt.nav.no/tilstandsmaskin/${vedtaksperiodeId}",
-                spannerlink(spurteDuClient, packet["fødselsnummer"].asText())
+                spannerlink(spurteDuClient, packet["fødselsnummer"].asString())
             )
         )
     }
 }
 
-private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+private val objectMapper: ObjectMapper = jacksonObjectMapper()
 private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
 
 fun spannerlink(spurteDuClient: SpurteDuClient, fnr: String): String {

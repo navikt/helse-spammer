@@ -31,7 +31,7 @@ internal class SlackmeldingMonitor(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
-        val melding = packet["melding"].asText()
+        val melding = packet["melding"].asString()
         val skalHaPrefix = packet["utenPrefix"].isMissingOrNull()
         val skalHaSuffix = packet["utenSuffix"].isMissingOrNull()
         val prefix = if (skalHaPrefix) "${packet.emoji} ${packet.prefix}" else ""
@@ -45,10 +45,10 @@ internal class SlackmeldingMonitor(
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
         private val String.fintNavn get() = if (length < 2) uppercase() else substring(0, 1).uppercase() + substring(1)
 
-        private val JsonMessage.person get() = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asText()?.split(" ")?.lastOrNull()?.fintNavn
+        private val JsonMessage.person get() = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asString()?.split(" ")?.lastOrNull()?.fintNavn
         private val JsonMessage.prefix get(): String {
             if (person != null) return "Hei! $person her :meow_wave:"
-            val apper = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.map { it.path("service").asText() }?.filterNot { it == "spammer" }?.distinct() ?: emptyList()
+            val apper = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.values()?.map { it.path("service").asString() }?.filterNot { it == "spammer" }?.distinct() ?: emptyList()
             if (apper.isEmpty()) return "Hei! En hemmelig beundrer her :meow_blush:"
             if (apper.size == 1) return "Hei! ${apper.single().fintNavn} her :robot_face:"
             val meg = apper.last().fintNavn
@@ -56,10 +56,10 @@ internal class SlackmeldingMonitor(
             return "Hei! $meg her, min gode venn $godVenn minnet meg på en ting :robot_face:"
         }
 
-        private val JsonMessage.epost get() = get("@avsender.epost").asText()
+        private val JsonMessage.epost get() = get("@avsender.epost").asString()
         private val JsonMessage.suffix get() = if (person == null) "" else ". Om du ønsker å ta dette privat, <mailto:$epost|svar meg på mail da vel!>"
-        private val JsonMessage.error get() = get("level").asText().uppercase() == "ERROR"
+        private val JsonMessage.error get() = get("level").asString().uppercase() == "ERROR"
         private val JsonMessage.emoji get() = if (error) ":alert:" else ":speech_balloon:"
-        private val JsonMessage.channel get(): String? = get("channel").takeUnless { it.isMissingOrNull() }?.asText()
+        private val JsonMessage.channel get(): String? = get("channel").takeUnless { it.isMissingOrNull() }?.asString()
     }
 }
