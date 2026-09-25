@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 internal class AvstemmingMonitor(
     rapidsConnection: RapidsConnection,
@@ -24,7 +25,7 @@ internal class AvstemmingMonitor(
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
     }
 
-    private val tidsstempel = DateTimeFormatter.ofPattern("eeee d. MMMM")
+    private val tidsstempel = DateTimeFormatter.ofPattern("eeee d. MMMM", Locale.of("nb", "NO"))
 
     init {
         River(rapidsConnection).apply {
