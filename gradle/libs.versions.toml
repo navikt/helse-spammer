@@ -1,15 +1,19 @@
 [versions]
 flyway = "11.5.0"
 sasGradlePlugins = "20260923.0907"
-tbdLibs = "2026.01.22-09.16-1d3f6039"
+tbdLibs = "20260917.2152"
 
 [libraries]
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 hikaricp = "com.zaxxer:HikariCP:7.1.0"
+# Versjonene kommer fra jackson-BOM-ene som sas-kotlin-pluginen legger på
+jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
+# Jackson 2 brukes kun av rison-formatet (se Kibana.kt), som ikke finnes for Jackson 3
+jackson2-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
 mockk = "io.mockk:mockk:1.14.11"
 postgresql = "org.postgresql:postgresql:42.7.13"
-rapidsAndRivers = "com.github.navikt:rapids-and-rivers:2026011411051768385145.e8ebad1177b4"
+rapidsAndRivers = "com.github.navikt:rapids-and-rivers:2026091610031789545782"
 rison = "com.bazaarvoice.jackson:rison:2.9.10.2"
 
 tbdLibs-postgresTestdatabaser = { module = "com.github.navikt.tbd-libs:postgres-testdatabaser", version.ref = "tbdLibs" }

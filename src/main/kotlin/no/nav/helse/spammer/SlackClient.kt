@@ -1,8 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.retry.retryBlocking
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -41,8 +38,6 @@ internal class SlackClient(private val accessToken: String, private val channel:
         private val tjenestekall = LoggerFactory.getLogger("tjenestekall")
         private val log = LoggerFactory.getLogger(SlackClient::class.java)
         private val objectMapper = jacksonObjectMapper()
-            .registerModule(JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
     fun postMessage(text: String, threadTs: String? = null, broadcast: Boolean = false, customChannel: String? = null): String? {
@@ -55,7 +50,7 @@ internal class SlackClient(private val accessToken: String, private val channel:
                 put("reply_broadcast", broadcast)
             }
         }))?.let {
-            objectMapper.readTree(it)["ts"]?.asText()
+            objectMapper.readTree(it)["ts"]?.asString()
         }
     }
 

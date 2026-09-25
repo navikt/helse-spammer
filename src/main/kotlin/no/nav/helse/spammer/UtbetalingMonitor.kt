@@ -1,6 +1,5 @@
 package no.nav.helse.spammer
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
@@ -10,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.JsonNode
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -44,12 +44,12 @@ internal class UtbetalingMonitor(
             slackClient?.postMessage(
                 String.format(
                     "Utbetaling <%s|%s> (<%s|tjenestekall>) feilet med status %s! Beskrivelse: %s%s)",
-                    Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
-                    packet["utbetalingId"].asText(),
-                    Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asText()), packet["@opprettet"].asLocalDateTime().minusHours(1), null, "tjenestekall-*"),
-                    packet["status"].asText(),
-                    packet["beskrivelse"].asText(),
-                    packet["kodemelding"].asText()?.let { " ($it)" }
+                    Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
+                    packet["utbetalingId"].asString(),
+                    Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1), null, "tjenestekall-*"),
+                    packet["status"].asString(),
+                    packet["beskrivelse"].asString(),
+                    packet["kodemelding"].asString()?.let { " ($it)" }
                 )
             )
         }
