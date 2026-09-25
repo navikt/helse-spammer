@@ -1,5 +1,5 @@
 [versions]
-flyway = "11.5.0"
+flyway = "13.7.0"
 sasGradlePlugins = "20260923.0907"
 tbdLibs = "20260917.2152"
 
