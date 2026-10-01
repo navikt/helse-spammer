@@ -1,6 +1,6 @@
 [versions]
 flyway = "13.7.0"
-sasGradlePlugins = "20260929.1003"
+sasGradlePlugins = "20260930.1152"
 tbdLibs = "20260930.1309"
 
 [libraries]
