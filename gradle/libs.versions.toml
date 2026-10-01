@@ -1,12 +1,12 @@
 [versions]
 flyway = "13.7.0"
-sasGradlePlugins = "20260930.1152"
+sykepengerGradlePlugins = "20261001.1830"
 tbdLibs = "20260930.1309"
 
 [libraries]
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 hikaricp = "com.zaxxer:HikariCP:7.1.0"
-# Versjonene kommer fra jackson-BOM-ene som sas-kotlin-pluginen legger på
+# Versjonene kommer fra jackson-BOM-ene som no.nav.sykepenger.kotlin-pluginen legger på
 jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
 # Jackson 2 brukes kun av rison-formatet (se Kibana.kt), som ikke finnes for Jackson 3
 jackson2-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
@@ -22,4 +22,4 @@ tbdLibs-retry = { module = "com.github.navikt.tbd-libs:retry", version.ref = "tb
 tbdLibs-spurteduClient = { module = "com.github.navikt.tbd-libs:spurtedu-client", version.ref = "tbdLibs" }
 
 [plugins]
-sas-deployable = { id = "no.nav.helse.sas.sas-deployable", version.ref = "sasGradlePlugins" }
+sykepenger-deployable = { id = "no.nav.sykepenger.deployable", version.ref = "sykepengerGradlePlugins" }
