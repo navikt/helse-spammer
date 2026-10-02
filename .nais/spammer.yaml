@@ -15,9 +15,6 @@ spec:
   readiness:
     path: isready
     initialDelay: 5
-  preStopHook:
-    http:
-      path: /stop
   resources:
     limits:
       memory: 512Mi
@@ -28,43 +25,19 @@ spec:
     min: 1
     max: 1
     cpuThresholdPercentage: 90
-  kafka:
-    pool: nav-prod
   prometheus:
     enabled: true
     path: /metrics
   webproxy: true
-  gcp:
-    sqlInstances:
-      - type: POSTGRES_17
-        diskAutoresize: true
-        pointInTimeRecovery: true
-        tier: db-custom-1-3840
-        name: spammer
-        databases:
-          - name: spammer
-            envVarPrefix: DATABASE
-        flags:
-          - name: cloudsql.enable_pgaudit
-            value: "on"
-          - name: pgaudit.log
-            value: "write,ddl,role"
-          - name: pgaudit.log_parameter
-            value: "on"
-          - name: pgaudit.log_relation
-            value: "on"
   accessPolicy:
     outbound:
-      external:
-        - host: slack.com
-        - host: api.slack.com
       rules:
         - application: logging
           namespace: nais-system
         - application: spurtedu
-  envFrom:
-    - configmap: slack-channels
-    - secret: slack-bot-user
+      external:
+        - host: slack.com
+        - host: api.slack.com
   env:
     - name: KAFKA_CONSUMER_GROUP_ID
       value: tbd-spammer-v1
