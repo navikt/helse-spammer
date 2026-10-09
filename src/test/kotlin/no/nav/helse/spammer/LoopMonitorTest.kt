@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class LoopMonitorTest {
-
     private val rapid = TestRapid()
     private val slackClientMock = mockk<SlackClient>(relaxed = true)
     private val utgåendeMelding: CapturingSlot<String> = CapturingSlot()

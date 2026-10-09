@@ -18,9 +18,8 @@ import java.util.Locale
 
 internal class AvstemmingMonitor(
     rapidsConnection: RapidsConnection,
-    private val slackClient: SlackClient?
+    private val slackClient: SlackClient?,
 ) : River.PacketListener {
-
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
     }
@@ -28,32 +27,45 @@ internal class AvstemmingMonitor(
     private val tidsstempel = DateTimeFormatter.ofPattern("eeee d. MMMM", Locale.of("nb", "NO"))
 
     init {
-        River(rapidsConnection).apply {
-            precondition { it.requireValue("@event_name", "avstemming") }
-            validate { it.requireKey("@id", "antall_oppdrag", "fagområde") }
-            validate { it.require("dagen", JsonNode::asLocalDate) }
-            validate { it.requireKey("detaljer.nøkkel_fom", "detaljer.nøkkel_tom", "detaljer.antall_oppdrag", "detaljer.antall_avstemmingsmeldinger") }
-            validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
-        }.register(this)
+        River(rapidsConnection)
+            .apply {
+                precondition { it.requireValue("@event_name", "avstemming") }
+                validate { it.requireKey("@id", "antall_oppdrag", "fagområde") }
+                validate { it.require("dagen", JsonNode::asLocalDate) }
+                validate { it.requireKey("detaljer.nøkkel_fom", "detaljer.nøkkel_tom", "detaljer.antall_oppdrag", "detaljer.antall_avstemmingsmeldinger") }
+                validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
+            }.register(this)
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
+    override fun onError(
+        problems: MessageProblems,
+        context: MessageContext,
+        metadata: MessageMetadata,
+    ) {
         sikkerLog.error("forstod ikke avstemming:\n${problems.toExtendedReport()}")
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
-        val fagområde = when (val forkortelsen = packet["fagområde"].asString()) {
-            "SP" -> "brukerutbetalinger ($forkortelsen)"
-            "SPREF" -> "arbeidsgiverrefusjoner ($forkortelsen)"
-            else -> forkortelsen
-        }
-        slackClient?.postMessage(String.format(
-            ":bank: Avstemming for *%s*: %d oppdrag frem til %s ble avstemt, <%s|for %s siden>.",
-            fagområde,
-            packet["antall_oppdrag"].asInt(),
-            packet["dagen"].asLocalDate().format(tidsstempel),
-            Kibana.createUrl(String.format("\"%s\"", packet["@id"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
-            humanReadableTime(ChronoUnit.SECONDS.between(packet["@opprettet"].asLocalDateTime(), LocalDateTime.now())),
-        ))
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry,
+    ) {
+        val fagområde =
+            when (val forkortelsen = packet["fagområde"].asString()) {
+                "SP" -> "brukerutbetalinger ($forkortelsen)"
+                "SPREF" -> "arbeidsgiverrefusjoner ($forkortelsen)"
+                else -> forkortelsen
+            }
+        slackClient?.postMessage(
+            String.format(
+                ":bank: Avstemming for *%s*: %d oppdrag frem til %s ble avstemt, <%s|for %s siden>.",
+                fagområde,
+                packet["antall_oppdrag"].asInt(),
+                packet["dagen"].asLocalDate().format(tidsstempel),
+                Kibana.createUrl(String.format("\"%s\"", packet["@id"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1)),
+                humanReadableTime(ChronoUnit.SECONDS.between(packet["@opprettet"].asLocalDateTime(), LocalDateTime.now())),
+            ),
+        )
     }
 }

@@ -16,30 +16,43 @@ import kotlin.time.ExperimentalTime
 internal class UtbetalingMonitor(
     rapidsConnection: RapidsConnection,
     slackClient: SlackClient?,
-    slackThreadDao: SlackThreadDao?
+    slackThreadDao: SlackThreadDao?,
 ) {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
     }
 
     init {
-        River(rapidsConnection).apply {
-            precondition {
-                it.requireValue("@event_name", "transaksjon_status")
-                it.requireAny("status", listOf("AVVIST", "FEIL"))
-            }
-            validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
-            validate { it.requireKey("utbetalingId", "beskrivelse") }
-            validate { it.interestedIn("kodemelding") }
-        }.register(UtbetalingFeilet(slackClient, slackThreadDao))
+        River(rapidsConnection)
+            .apply {
+                precondition {
+                    it.requireValue("@event_name", "transaksjon_status")
+                    it.requireAny("status", listOf("AVVIST", "FEIL"))
+                }
+                validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
+                validate { it.requireKey("utbetalingId", "beskrivelse") }
+                validate { it.interestedIn("kodemelding") }
+            }.register(UtbetalingFeilet(slackClient, slackThreadDao))
     }
 
-    private class UtbetalingFeilet(private val slackClient: SlackClient?, private val slackThreadDao: SlackThreadDao?): River.PacketListener {
-        override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
+    private class UtbetalingFeilet(
+        private val slackClient: SlackClient?,
+        private val slackThreadDao: SlackThreadDao?,
+    ) : River.PacketListener {
+        override fun onError(
+            problems: MessageProblems,
+            context: MessageContext,
+            metadata: MessageMetadata,
+        ) {
             sikkerLog.error("forstod ikke transaksjon_status:\n${problems.toExtendedReport()}")
         }
 
-        override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
+        override fun onPacket(
+            packet: JsonMessage,
+            context: MessageContext,
+            metadata: MessageMetadata,
+            meterRegistry: MeterRegistry,
+        ) {
             if (slackThreadDao == null) return
             slackClient?.postMessage(
                 String.format(
@@ -49,8 +62,8 @@ internal class UtbetalingMonitor(
                     Kibana.createUrl(String.format("\"%s\"", packet["utbetalingId"].asString()), packet["@opprettet"].asLocalDateTime().minusHours(1), null, "tjenestekall-*"),
                     packet["status"].asString(),
                     packet["beskrivelse"].asString(),
-                    packet["kodemelding"].asString()?.let { " ($it)" }
-                )
+                    packet["kodemelding"].asString()?.let { " ($it)" },
+                ),
             )
         }
     }

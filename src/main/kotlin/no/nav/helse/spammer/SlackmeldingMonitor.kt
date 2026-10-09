@@ -13,24 +13,33 @@ import org.slf4j.LoggerFactory
 internal class SlackmeldingMonitor(
     rapidsConnection: RapidsConnection,
     private val slackClient: SlackClient?,
-    private val slackAlertsClient: SlackClient?
+    private val slackAlertsClient: SlackClient?,
 ) : River.PacketListener {
-
     init {
-        River(rapidsConnection).apply {
-            precondition { it.requireValue("@event_name", "slackmelding") }
-            validate {
-                it.requireKey("melding")
-                it.interestedIn("@avsender.navn", "@avsender.epost", "system_participating_services", "level", "channel", "utenPrefix", "utenSuffix")
-            }
-        }.register(this)
+        River(rapidsConnection)
+            .apply {
+                precondition { it.requireValue("@event_name", "slackmelding") }
+                validate {
+                    it.requireKey("melding")
+                    it.interestedIn("@avsender.navn", "@avsender.epost", "system_participating_services", "level", "channel", "utenPrefix", "utenSuffix")
+                }
+            }.register(this)
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
+    override fun onError(
+        problems: MessageProblems,
+        context: MessageContext,
+        metadata: MessageMetadata,
+    ) {
         sikkerLog.error("forstod ikke slackmelding:\n${problems.toExtendedReport()}")
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry,
+    ) {
         val melding = packet["melding"].asString()
         val skalHaPrefix = packet["utenPrefix"].isMissingOrNull()
         val skalHaSuffix = packet["utenSuffix"].isMissingOrNull()
@@ -45,10 +54,22 @@ internal class SlackmeldingMonitor(
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
         private val String.fintNavn get() = if (length < 2) uppercase() else substring(0, 1).uppercase() + substring(1)
 
-        private val JsonMessage.person get() = get("@avsender.navn").takeUnless { it.isMissingOrNull() }?.asString()?.split(" ")?.lastOrNull()?.fintNavn
+        private val JsonMessage.person get() =
+            get("@avsender.navn")
+                .takeUnless { it.isMissingOrNull() }
+                ?.asString()
+                ?.split(" ")
+                ?.lastOrNull()
+                ?.fintNavn
         private val JsonMessage.prefix get(): String {
             if (person != null) return "Hei! $person her :meow_wave:"
-            val apper = get("system_participating_services").takeUnless { it.isMissingOrNull() }?.values()?.map { it.path("service").asString() }?.filterNot { it == "spammer" }?.distinct() ?: emptyList()
+            val apper =
+                get("system_participating_services")
+                    .takeUnless { it.isMissingOrNull() }
+                    ?.values()
+                    ?.map { it.path("service").asString() }
+                    ?.filterNot { it == "spammer" }
+                    ?.distinct() ?: emptyList()
             if (apper.isEmpty()) return "Hei! En hemmelig beundrer her :meow_blush:"
             if (apper.size == 1) return "Hei! ${apper.single().fintNavn} her :robot_face:"
             val meg = apper.last().fintNavn

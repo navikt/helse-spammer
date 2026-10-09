@@ -13,33 +13,45 @@ object Kibana {
     // Rison finnes kun som en Jackson 2-utvidelse, så denne mapperen blir stående på Jackson 2.
     private val risonMapper = ObjectMapper(RisonFactory())
 
-    fun createUrl(query: String, startTime: LocalDateTime, endTime: LocalDateTime? = null, index: String = defaultIndex) =
-        createUrl(query, startTime.isoLocalDateTime(), endTime?.isoLocalDateTime() ?: "now", index)
+    fun createUrl(
+        query: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime? = null,
+        index: String = defaultIndex,
+    ) = createUrl(query, startTime.isoLocalDateTime(), endTime?.isoLocalDateTime() ?: "now", index)
 
     fun createUrl(
         query: String,
         startTime: String,
         endTime: String = "now",
-        index: String = defaultIndex
-    ) =
-        String.format(urlFormat, appState(index, query), globalState(startTime, endTime))
+        index: String = defaultIndex,
+    ) = String.format(urlFormat, appState(index, query), globalState(startTime, endTime))
 
-    private fun appState(index: String, query: String) = mapOf(
+    private fun appState(
+        index: String,
+        query: String,
+    ) = mapOf(
         "index" to index,
-        "query" to mapOf(
-            "language" to "lucene",
-            "query" to query
-        )
+        "query" to
+            mapOf(
+                "language" to "lucene",
+                "query" to query,
+            ),
     ).toRison()
 
-    private fun globalState(startTime: String, endTime: String) = mapOf(
-        "time" to mapOf(
-            "from" to startTime,
-            "mode" to "absolute",
-            "to" to endTime
-        )
+    private fun globalState(
+        startTime: String,
+        endTime: String,
+    ) = mapOf(
+        "time" to
+            mapOf(
+                "from" to startTime,
+                "mode" to "absolute",
+                "to" to endTime,
+            ),
     ).toRison()
 
     private fun LocalDateTime.isoLocalDateTime() = this.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
     private fun Any.toRison() = risonMapper.writeValueAsString(this)
 }

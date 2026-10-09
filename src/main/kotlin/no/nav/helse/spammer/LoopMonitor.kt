@@ -17,24 +17,34 @@ import java.time.LocalDateTime
 internal class LoopMonitor(
     rapidsConnection: RapidsConnection,
     private val slackClient: SlackClient?,
-    private val spurteDuClient: SpurteDuClient
+    private val spurteDuClient: SpurteDuClient,
 ) : River.PacketListener {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
     }
 
     init {
-        River(rapidsConnection).apply {
-            precondition { it.requireValue("@event_name", "vedtaksperiode_i_loop") }
-            validate { it.requireKey("vedtaksperiodeId", "fødselsnummer", "forrigeTilstand", "gjeldendeTilstand") }
-        }.register(this)
+        River(rapidsConnection)
+            .apply {
+                precondition { it.requireValue("@event_name", "vedtaksperiode_i_loop") }
+                validate { it.requireKey("vedtaksperiodeId", "fødselsnummer", "forrigeTilstand", "gjeldendeTilstand") }
+            }.register(this)
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
+    override fun onError(
+        problems: MessageProblems,
+        context: MessageContext,
+        metadata: MessageMetadata,
+    ) {
         sikkerLog.error("forstod ikke vedtaksperiode_i_loop:\n${problems.toExtendedReport()}")
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry,
+    ) {
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asString()
         val forrigeTilstand = packet["forrigeTilstand"].asString()
         val gjeldendeTilstand = packet["gjeldendeTilstand"].asString()
@@ -42,19 +52,19 @@ internal class LoopMonitor(
         slackClient?.postMessage(
             String.format(
                 "Advarsel: mulig loop oppdaget i vedtaksperiode: <%s|%s> hopper mellom %s og %s. " +
-                        "Sjekk <%s|tilstandsmaskinen> eller <%s|spanner>",
+                    "Sjekk <%s|tilstandsmaskinen> eller <%s|spanner>",
                 Kibana.createUrl(
                     String.format("\"%s\"", vedtaksperiodeId),
                     LocalDateTime.now().minusDays(30),
                     null,
-                    "tjenestekall-*"
+                    "tjenestekall-*",
                 ),
                 vedtaksperiodeId,
                 forrigeTilstand,
                 gjeldendeTilstand,
-                "https://sporing.ansatt.nav.no/tilstandsmaskin/${vedtaksperiodeId}",
-                spannerlink(spurteDuClient, packet["fødselsnummer"].asString())
-            )
+                "https://sporing.ansatt.nav.no/tilstandsmaskin/$vedtaksperiodeId",
+                spannerlink(spurteDuClient, packet["fødselsnummer"].asString()),
+            ),
         )
     }
 }
@@ -62,14 +72,21 @@ internal class LoopMonitor(
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
 private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
 
-fun spannerlink(spurteDuClient: SpurteDuClient, fnr: String): String {
-    val payload = SkjulRequest.SkjulTekstRequest(
-        tekst = objectMapper.writeValueAsString(mapOf(
-            "ident" to fnr,
-            "identtype" to "FNR"
-        )),
-        påkrevdTilgang = tbdgruppeProd
-    )
+fun spannerlink(
+    spurteDuClient: SpurteDuClient,
+    fnr: String,
+): String {
+    val payload =
+        SkjulRequest.SkjulTekstRequest(
+            tekst =
+                objectMapper.writeValueAsString(
+                    mapOf(
+                        "ident" to fnr,
+                        "identtype" to "FNR",
+                    ),
+                ),
+            påkrevdTilgang = tbdgruppeProd,
+        )
 
     val spurteDuLink = spurteDuClient.skjul(payload)
     return "https://spanner.ansatt.nav.no/person/${spurteDuLink.id}"

@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 val databaseContainer = DatabaseContainers.container("spammer")
-internal class MigrationTest {
 
+internal class MigrationTest {
     private lateinit var testDataSource: TestDataSource
 
     @BeforeEach
@@ -26,10 +26,16 @@ internal class MigrationTest {
 
     @Test
     fun `migreringer skal kjøre`() {
-        assertTrue(sessionOf(testDataSource.ds).use {
-            it.run(queryOf("select exists (select from information_schema.tables where table_schema='public' and table_name=?)", "slack_thread").map { row ->
-                row.boolean(1)
-            }.asList).single()
-        })
+        assertTrue(
+            sessionOf(testDataSource.ds).use {
+                it
+                    .run(
+                        queryOf("select exists (select from information_schema.tables where table_schema='public' and table_name=?)", "slack_thread")
+                            .map { row ->
+                                row.boolean(1)
+                            }.asList,
+                    ).single()
+            },
+        )
     }
 }

@@ -17,34 +17,45 @@ internal class PåminnelseMonitor(
     rapidsConnection: RapidsConnection,
     slackClient: SlackClient?,
     slackThreadDao: SlackThreadDao?,
-    spurteDuClient: SpurteDuClient
+    spurteDuClient: SpurteDuClient,
 ) {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
-        private val interessanteTilstander = setOf(
-            "AVVENTER_VILKÅRSPRØVING",
-            "AVVENTER_VILKÅRSPRØVING_REVURDERING",
-            "AVVENTER_HISTORIKK_REVURDERING",
-            "AVVENTER_HISTORIKK",
-            "AVVENTER_SIMULERING_REVURDERING",
-            "AVVENTER_SIMULERING",
-            "TIL_UTBETALING"
-        )
+        private val interessanteTilstander =
+            setOf(
+                "AVVENTER_VILKÅRSPRØVING",
+                "AVVENTER_VILKÅRSPRØVING_REVURDERING",
+                "AVVENTER_HISTORIKK_REVURDERING",
+                "AVVENTER_HISTORIKK",
+                "AVVENTER_SIMULERING_REVURDERING",
+                "AVVENTER_SIMULERING",
+                "TIL_UTBETALING",
+            )
     }
 
     init {
-        River(rapidsConnection).apply {
-            precondition { it.requireValue("@event_name", "påminnelse") }
-            validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
-            validate { it.requireKey("fødselsnummer") }
-            validate { it.requireKey("vedtaksperiodeId") }
-            validate { it.requireAny("tilstand", interessanteTilstander.toList()) }
-            validate { it.requireKey("antallGangerPåminnet") }
-        }.register(Påminnelser(slackClient, slackThreadDao, spurteDuClient))
+        River(rapidsConnection)
+            .apply {
+                precondition { it.requireValue("@event_name", "påminnelse") }
+                validate { it.require("@opprettet", JsonNode::asLocalDateTime) }
+                validate { it.requireKey("fødselsnummer") }
+                validate { it.requireKey("vedtaksperiodeId") }
+                validate { it.requireAny("tilstand", interessanteTilstander.toList()) }
+                validate { it.requireKey("antallGangerPåminnet") }
+            }.register(Påminnelser(slackClient, slackThreadDao, spurteDuClient))
     }
 
-    private class Påminnelser(private val slackClient: SlackClient?, private val slackThreadDao: SlackThreadDao?, private val spurteDuClient: SpurteDuClient): River.PacketListener {
-        override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
+    private class Påminnelser(
+        private val slackClient: SlackClient?,
+        private val slackThreadDao: SlackThreadDao?,
+        private val spurteDuClient: SpurteDuClient,
+    ) : River.PacketListener {
+        override fun onPacket(
+            packet: JsonMessage,
+            context: MessageContext,
+            metadata: MessageMetadata,
+            meterRegistry: MeterRegistry,
+        ) {
             if (slackThreadDao == null) return
             val antallGangerPåminnet = packet["antallGangerPåminnet"].asInt()
             // sørger for å lage en alarm for hver 20. påminnelse
@@ -61,12 +72,12 @@ internal class PåminnelseMonitor(
                         String.format("\"%s\"", packet["vedtaksperiodeId"].asString()),
                         packet["@opprettet"].asLocalDateTime().minusHours(1),
                         null,
-                        "tjenestekall-*"
+                        "tjenestekall-*",
                     ),
                     antallGangerPåminnet,
                     packet["tilstand"].asString(),
-                    spannerlink(spurteDuClient, packet["fødselsnummer"].asString())
-                )
+                    spannerlink(spurteDuClient, packet["fødselsnummer"].asString()),
+                ),
             )
         }
     }
