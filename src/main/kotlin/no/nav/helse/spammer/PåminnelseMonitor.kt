@@ -1,12 +1,12 @@
 package no.nav.helse.spammer
 
+import com.github.navikt.tbd_libs.personpseudoid.PersonPseudoIdProvider
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
-import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
 import tools.jackson.databind.JsonNode
@@ -17,7 +17,7 @@ internal class PåminnelseMonitor(
     rapidsConnection: RapidsConnection,
     slackClient: SlackClient?,
     slackThreadDao: SlackThreadDao?,
-    spurteDuClient: SpurteDuClient,
+    personPseudoIdProvider: PersonPseudoIdProvider,
 ) {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
@@ -42,13 +42,13 @@ internal class PåminnelseMonitor(
                 validate { it.requireKey("vedtaksperiodeId") }
                 validate { it.requireAny("tilstand", interessanteTilstander.toList()) }
                 validate { it.requireKey("antallGangerPåminnet") }
-            }.register(Påminnelser(slackClient, slackThreadDao, spurteDuClient))
+            }.register(Påminnelser(slackClient, slackThreadDao, personPseudoIdProvider))
     }
 
     private class Påminnelser(
         private val slackClient: SlackClient?,
         private val slackThreadDao: SlackThreadDao?,
-        private val spurteDuClient: SpurteDuClient,
+        private val personPseudoIdProvider: PersonPseudoIdProvider,
     ) : River.PacketListener {
         override fun onPacket(
             packet: JsonMessage,
@@ -76,7 +76,7 @@ internal class PåminnelseMonitor(
                     ),
                     antallGangerPåminnet,
                     packet["tilstand"].asString(),
-                    spannerlink(spurteDuClient, packet["fødselsnummer"].asString()),
+                    spannerlink(personPseudoIdProvider, packet["fødselsnummer"].asString()),
                 ),
             )
         }

@@ -8,7 +8,7 @@ sykepengerDeployable {
 
 dependencies {
     implementation(libs.rapidsAndRivers)
-    implementation(libs.tbdLibs.spurteduClient)
+    implementation(libs.tbdLibs.personPseudoId)
     implementation(libs.tbdLibs.retry)
 
     implementation(libs.jackson.kotlin)

@@ -1,23 +1,21 @@
 package no.nav.helse.spammer
 
+import com.github.navikt.tbd_libs.personpseudoid.Identitetsnummer
+import com.github.navikt.tbd_libs.personpseudoid.PersonPseudoIdProvider
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
-import com.github.navikt.tbd_libs.spurtedu.SkjulRequest
-import com.github.navikt.tbd_libs.spurtedu.SpurteDuClient
 import io.micrometer.core.instrument.MeterRegistry
 import org.slf4j.LoggerFactory
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDateTime
 
 internal class LoopMonitor(
     rapidsConnection: RapidsConnection,
     private val slackClient: SlackClient?,
-    private val spurteDuClient: SpurteDuClient,
+    private val personPseudoIdProvider: PersonPseudoIdProvider,
 ) : River.PacketListener {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
@@ -63,31 +61,16 @@ internal class LoopMonitor(
                 forrigeTilstand,
                 gjeldendeTilstand,
                 "https://sporing.ansatt.nav.no/tilstandsmaskin/$vedtaksperiodeId",
-                spannerlink(spurteDuClient, packet["fødselsnummer"].asString()),
+                spannerlink(personPseudoIdProvider, packet["fødselsnummer"].asString()),
             ),
         )
     }
 }
 
-private val objectMapper: ObjectMapper = jacksonObjectMapper()
-private const val tbdgruppeProd = "c0227409-2085-4eb2-b487-c4ba270986a3"
-
 fun spannerlink(
-    spurteDuClient: SpurteDuClient,
+    personPseudoIdProvider: PersonPseudoIdProvider,
     fnr: String,
 ): String {
-    val payload =
-        SkjulRequest.SkjulTekstRequest(
-            tekst =
-                objectMapper.writeValueAsString(
-                    mapOf(
-                        "ident" to fnr,
-                        "identtype" to "FNR",
-                    ),
-                ),
-            påkrevdTilgang = tbdgruppeProd,
-        )
-
-    val spurteDuLink = spurteDuClient.skjul(payload)
-    return "https://spanner.ansatt.nav.no/person/${spurteDuLink.id}"
+    val personPseudoId = personPseudoIdProvider.nyPersonPseudoId(Identitetsnummer(fnr))
+    return "https://spanner.ansatt.nav.no/person/$personPseudoId"
 }
