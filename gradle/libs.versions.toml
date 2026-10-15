@@ -12,7 +12,7 @@ jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
 jackson2-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
 mockk = "io.mockk:mockk:1.14.11"
-postgresql = "org.postgresql:postgresql:42.7.13"
+postgresql = "org.postgresql:postgresql:42.7.14"
 rapidsAndRivers = "com.github.navikt:rapids-and-rivers:2026091610031789545782"
 rison = "com.bazaarvoice.jackson:rison:2.9.10.2"
 
