@@ -23,6 +23,7 @@ internal class PåminnelseMonitor(
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
         private val interessanteTilstander =
             setOf(
+                "AVVENTER_RETTIGHETSKATEGORI",
                 "AVVENTER_VILKÅRSPRØVING",
                 "AVVENTER_VILKÅRSPRØVING_REVURDERING",
                 "AVVENTER_HISTORIKK_REVURDERING",
