@@ -12,14 +12,11 @@ dependencies {
     implementation(libs.tbdLibs.retry)
 
     implementation(libs.jackson.kotlin)
-    implementation(libs.jackson2.databind)
 
     implementation(libs.flyway.database.postgresql)
     implementation(libs.hikaricp)
     implementation(libs.postgresql)
     implementation(libs.kotliquery)
-
-    implementation(libs.rison)
 
     testImplementation(libs.mockk)
     testImplementation(libs.tbdLibs.rapidsAndRiversTest)
