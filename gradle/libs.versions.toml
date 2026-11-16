@@ -9,7 +9,7 @@ hikaricp = "com.zaxxer:HikariCP:7.1.0"
 # Versjonene kommer fra jackson-BOM-ene som no.nav.sykepenger.kotlin-pluginen legger på
 jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
-mockk = "io.mockk:mockk:1.14.11"
+mockk = "io.mockk:mockk:1.14.12"
 postgresql = "org.postgresql:postgresql:42.7.14"
 rapidsAndRivers = "com.github.navikt:rapids-and-rivers:2026110308421793691732"
 
