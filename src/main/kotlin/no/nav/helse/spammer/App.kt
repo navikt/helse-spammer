@@ -36,7 +36,7 @@ fun main() {
             PåminnelseMonitor(this, slackAlertsClient, slackThreadDao, personPseudoIdProvider)
             AvstemmingMonitor(this, slackOpsClient)
             AppStateMonitor(this, slackAlertsClient)
-            LoopMonitor(this, slackAlertsClient, personPseudoIdProvider)
+            LoopMonitor(this, slackAlertsClient, personPseudoIdProvider, env.getValue("GOOGLE_CLOUD_PROJECT"), env.getValue("SPEIL_URL"))
             SlackmeldingMonitor(this, slackOpsClient, slackAlertsClient)
         }.apply {
             register(

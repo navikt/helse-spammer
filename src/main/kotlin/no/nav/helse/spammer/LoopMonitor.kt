@@ -9,13 +9,17 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
+import io.opentelemetry.api.trace.Span
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets.UTF_8
 
 internal class LoopMonitor(
     rapidsConnection: RapidsConnection,
     private val slackClient: SlackClient?,
     private val personPseudoIdProvider: PersonPseudoIdProvider,
+    private val googleCloudProject: String,
+    private val speilUrl: String,
 ) : River.PacketListener {
     private companion object {
         private val sikkerLog = LoggerFactory.getLogger("tjenestekall")
@@ -46,23 +50,26 @@ internal class LoopMonitor(
         val vedtaksperiodeId = packet["vedtaksperiodeId"].asString()
         val forrigeTilstand = packet["forrigeTilstand"].asString()
         val gjeldendeTilstand = packet["gjeldendeTilstand"].asString()
+        val spanContext = Span.current().spanContext
+        val loggsøk =
+            if (spanContext.isValid) {
+                """jsonPayload.trace_id="${spanContext.traceId}""""
+            } else {
+                """"$vedtaksperiodeId""""
+            }
+        val logglenketekst = if (spanContext.isValid) "Team Logs (trace)" else "Team Logs (vedtaksperiode, mangler trace)"
+        val teamLogsUrl =
+            "https://console.cloud.google.com/logs/query;query=${URLEncoder.encode(loggsøk, UTF_8)}" +
+                ";duration=P30D?project=${URLEncoder.encode(googleCloudProject, UTF_8)}"
+
+        sikkerLog.info("Oppdaget mulig loop i vedtaksperiode: {}", vedtaksperiodeId)
 
         slackClient?.postMessage(
-            String.format(
-                "Advarsel: mulig loop oppdaget i vedtaksperiode: <%s|%s> hopper mellom %s og %s. " +
-                    "Sjekk <%s|tilstandsmaskinen> eller <%s|spanner>",
-                Kibana.createUrl(
-                    String.format("\"%s\"", vedtaksperiodeId),
-                    LocalDateTime.now().minusDays(30),
-                    null,
-                    "tjenestekall-*",
-                ),
-                vedtaksperiodeId,
-                forrigeTilstand,
-                gjeldendeTilstand,
-                "https://sporing.ansatt.nav.no/tilstandsmaskin/$vedtaksperiodeId",
-                spannerlink(personPseudoIdProvider, packet["fødselsnummer"].asString()),
-            ),
+            "Advarsel: mulig loop oppdaget i vedtaksperiode: $vedtaksperiodeId hopper mellom $forrigeTilstand og $gjeldendeTilstand. " +
+                "Sjekk <$teamLogsUrl|$logglenketekst>, " +
+                "<https://sporing.ansatt.nav.no/tilstandsmaskin/$vedtaksperiodeId|tilstandsmaskinen> eller " +
+                "<${spannerlink(personPseudoIdProvider, packet["fødselsnummer"].asString())}|spanner>. " +
+                "<$speilUrl/vedtaksperiode/$vedtaksperiodeId|Åpne i Speil>",
         )
     }
 }

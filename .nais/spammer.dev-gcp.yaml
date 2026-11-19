@@ -1,3 +1,6 @@
 spec:
   kafka:
     pool: nav-dev
+  env:
+    - name: SPEIL_URL
+      value: https://speil.ansatt.dev.nav.no
